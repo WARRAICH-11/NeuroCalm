@@ -1,7 +1,14 @@
 import { NextResponse } from 'next/server';
-import { auth } from '@/lib/firebase/server';
+import { Auth, getAuth as getServerAuth } from 'firebase-admin/auth';
 import { signInWithEmailAndPassword, getAuth } from 'firebase/auth';
 import { initializeApp } from 'firebase/app';
+import { auth } from '@/lib/firebase/server';
+
+// Type assertion for server auth
+if (!auth) {
+  throw new Error('Firebase Admin auth is not initialized');
+}
+const typedAuth = auth;
 
 // Firebase client config
 const firebaseConfig = {
@@ -36,7 +43,7 @@ export async function POST(request: Request) {
       
       // Create session cookie using server auth
       const expiresIn = 60 * 60 * 24 * 5 * 1000; // 5 days
-      const sessionCookie = await auth.createSessionCookie(idToken, { expiresIn });
+      const sessionCookie = await typedAuth.createSessionCookie(idToken, { expiresIn });
       
       const response = new NextResponse(
         JSON.stringify({ 
@@ -65,15 +72,17 @@ export async function POST(request: Request) {
       });
       
       return response;
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Sign-in error:', error);
       
       let errorMessage = 'Failed to sign in';
-      if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+      const firebaseError = error as { code?: string; message?: string };
+      
+      if (firebaseError.code === 'auth/user-not-found' || firebaseError.code === 'auth/wrong-password') {
         errorMessage = 'Invalid email or password';
-      } else if (error.code === 'auth/too-many-requests') {
+      } else if (firebaseError.code === 'auth/too-many-requests') {
         errorMessage = 'Too many failed attempts. Please try again later.';
-      } else if (error.code === 'auth/user-disabled') {
+      } else if (firebaseError.code === 'auth/user-disabled') {
         errorMessage = 'This account has been disabled.';
       }
       

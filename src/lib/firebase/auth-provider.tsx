@@ -6,7 +6,14 @@ import { onAuthStateChanged, signOut as firebaseSignOut, User } from 'firebase/a
 import { useRouter } from 'next/navigation';
 import { auth } from './client-app';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useToast } from '@/components/ui/use-toast';
+// Import toast dynamically to avoid SSR issues
+const useToast = () => {
+  if (typeof window === 'undefined') {
+    return { toast: () => {} };
+  }
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  return require('@/components/ui/use-toast').useToast();
+};
 
 type AuthContextType = {
   user: User | null;

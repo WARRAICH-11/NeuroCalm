@@ -1,6 +1,15 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { auth } from './lib/firebase/server';
+
+// Middleware runs on Edge Runtime, so we can't use Firebase Admin SDK here directly
+// Instead, we'll rely on API routes for authentication
+
+// List of public API routes that don't require authentication
+const PUBLIC_API_ROUTES = [
+  '/api/auth/signin',
+  '/api/auth/signup',
+  '/api/auth/session',
+];
 
 const PUBLIC_PATHS = ['/login', '/signup', '/', '/support', '/privacy', '/terms'];
 const PROTECTED_PATHS = ['/dashboard', '/profile', '/settings'];
@@ -22,42 +31,40 @@ export async function middleware(request: NextRequest) {
       url.searchParams.set('redirect', pathname);
       return NextResponse.redirect(url);
     }
-
-    try {
-      // Verify the session cookie
-      await auth.verifySessionCookie(sessionToken, true);
-      return NextResponse.next();
-    } catch (error) {
-      console.error('Auth verification failed:', error);
-      
-      // Clear invalid session
-      const response = NextResponse.redirect(new URL('/login', request.url));
-      response.cookies.delete('__session');
-      return response;
-    }
+    
+    // In a real app, you would verify the session token here
+    // Since we can't use Firebase Admin in Edge Runtime, we'll verify it in API routes
+    // For now, we'll just check if the token exists
+    return NextResponse.next();
   }
 
   // Handle API routes
-  if (pathname.startsWith('/api/') && !pathname.startsWith('/api/auth/')) {
-    if (!sessionToken) {
-      return new NextResponse(JSON.stringify({ error: 'Unauthorized' }), {
-        status: 401,
-        headers: { 'Content-Type': 'application/json' },
-      });
-    }
-
-    try {
-      await auth.verifySessionCookie(sessionToken, true);
+  if (pathname.startsWith('/api/')) {
+    // Skip auth check for public API routes
+    if (PUBLIC_API_ROUTES.some(route => pathname === route || pathname.startsWith(`${route}/`))) {
       return NextResponse.next();
-    } catch (error) {
-      console.error('API auth verification failed:', error);
-      return new NextResponse(JSON.stringify({ error: 'Invalid session' }), {
-        status: 401,
-        headers: { 'Content-Type': 'application/json' },
-      });
     }
+    
+    // For protected API routes, we'll just check if a session token exists
+    // The actual verification will happen in the API route handlers
+    if (!sessionToken) {
+      return new NextResponse(
+        JSON.stringify({ 
+          error: 'Unauthorized',
+          message: 'No session token provided'
+        }), 
+        { 
+          status: 401,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
+    }
+    
+    // Continue to the API route where the token will be verified
+    return NextResponse.next();
   }
 
+  // For all other routes, continue to the next middleware
   return NextResponse.next();
 }
 

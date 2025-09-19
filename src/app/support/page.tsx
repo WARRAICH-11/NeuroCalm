@@ -1,13 +1,11 @@
+// This is a Client Component
 'use client';
 
-import { Metadata } from 'next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ContactForm } from './components/contact-form';
 
-export const metadata: Metadata = {
-  title: 'Support - NeuroCalm',
-  description: 'Get help and support for NeuroCalm',
-};
+// Metadata is now in a separate file: src/app/support/metadata.ts
+// This separation is required when using 'use client' with metadata
 
 const faqs = [
   {

@@ -3,10 +3,9 @@ import Link from 'next/link';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 import { Analytics } from "@vercel/analytics/next";
-import { AuthProvider } from '@/lib/firebase/auth-provider';
 import { MainNav } from '@/components/main-nav';
-import { ThemeProvider } from '@/components/theme-provider';
-import { ToastProvider } from '@/components/ui/toast-provider';
+import { AuthWrapper } from '@/components/auth/auth-wrapper';
+import { TestToastButton } from '@/components/TestToastButton';
 
 export const metadata: Metadata = {
   title: 'NeuroCalm',
@@ -22,6 +21,7 @@ export const viewport: Viewport = {
     { media: '(prefers-color-scheme: dark)', color: 'black' },
   ],
 };
+
 
 export default function RootLayout({
   children,
@@ -42,36 +42,35 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/icon-192x192.png" />
       </head>
       <body className="font-body antialiased min-h-screen bg-background" suppressHydrationWarning>
-        <AuthProvider>
-          <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-            <ToastProvider>
-              <div className="flex flex-col min-h-screen">
-                <header className="border-b sticky top-0 z-40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-                  <div className="container flex h-16 items-center justify-between py-4">
-                    <div className="flex items-center space-x-4">
-                      <Link href="/" className="flex items-center space-x-2">
-                        <span className="font-bold text-xl">NeuroCalm</span>
-                      </Link>
-                    </div>
-                    <MainNav />
-                  </div>
-                </header>
-                <main className="flex-1">
-                  {children}
-                </main>
-                <footer className="border-t py-6 md:py-0">
-                  <div className="container flex flex-col items-center justify-between gap-4 md:h-24 md:flex-row">
-                    <p className="text-center text-sm leading-loose text-muted-foreground md:text-left">
-                      &copy; {new Date().getFullYear()} NeuroCalm. All rights reserved.
-                    </p>
-                  </div>
-                </footer>
+        <AuthWrapper>
+          <div className="flex flex-col min-h-screen">
+            <header className="border-b sticky top-0 z-40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+              <div className="container flex h-16 items-center justify-between py-4">
+                <div className="flex items-center space-x-4">
+                  <Link href="/" className="flex items-center space-x-2">
+                    <span className="font-bold text-xl">NeuroCalm</span>
+                  </Link>
+                </div>
+                <MainNav />
               </div>
-              <Toaster />
-              <Analytics />
-            </ToastProvider>
-          </ThemeProvider>
-        </AuthProvider>
+            </header>
+            <main className="flex-1">
+              <div className="container py-4">
+                {/* Test button is now inside ToastProvider */}
+              </div>
+              {children}
+              <TestToastButton />
+            </main>
+            <footer className="border-t py-6">
+              <div className="container flex flex-col items-center justify-between gap-4 md:h-24 md:flex-row">
+                <p className="text-center text-sm leading-loose text-muted-foreground md:text-left">
+                  &copy; {new Date().getFullYear()} NeuroCalm. All rights reserved.
+                </p>
+              </div>
+            </footer>
+          </div>
+          <Analytics />
+        </AuthWrapper>
       </body>
     </html>
   );

@@ -3,6 +3,8 @@
 import * as React from "react";
 import * as ToastPrimitives from "@radix-ui/react-toast";
 
+export type ToastFunction = (message: string, variant?: 'default' | 'destructive') => void;
+
 type ToasterToast = ToastPrimitives.ToastProps & {
   id: string;
   title?: React.ReactNode;
@@ -73,10 +75,24 @@ export const ToastProvider = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
-export const useToast = () => {
+export const useToast = (): ToastContextType => {
   const context = React.useContext(ToastContext);
   if (context === undefined) {
-    throw new Error('useToast must be used within a ToastProvider');
+    // Return a no-op function in case the hook is used outside a provider
+    return {
+      toast: () => () => {},
+      dismissToast: () => {},
+      toasts: [],
+    };
+  }
+  return context;
+};
+
+// Export a version that throws when used outside a provider
+export const useStrictToast = (): ToastContextType => {
+  const context = React.useContext(ToastContext);
+  if (context === undefined) {
+    throw new Error('useStrictToast must be used within a ToastProvider');
   }
   return context;
 };

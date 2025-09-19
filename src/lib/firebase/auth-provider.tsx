@@ -6,14 +6,11 @@ import { onAuthStateChanged, signOut as firebaseSignOut, User } from 'firebase/a
 import { useRouter } from 'next/navigation';
 import { auth } from './client-app';
 import { Skeleton } from '@/components/ui/skeleton';
-// Import toast dynamically to avoid SSR issues
-const useToast = () => {
-  if (typeof window === 'undefined') {
-    return { toast: () => {} };
-  }
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  return require('@/components/ui/use-toast').useToast();
-};
+
+export type ToastFunction = (message: string, variant?: 'default' | 'destructive') => void;
+
+// Default toast function that does nothing
+const defaultToast: ToastFunction = () => {};
 
 type AuthContextType = {
   user: User | null;
@@ -32,6 +29,11 @@ const AuthContext = createContext<AuthContextType>({
   refreshUser: async () => {},
   checkAuth: async () => false,
 });
+
+export type AuthProviderRef = {
+  onError?: (error: Error) => void;
+  setToast?: (toastFn: ToastFunction) => void;
+};
 
 type AuthProviderProps = {
   children: ReactNode;
@@ -64,12 +66,17 @@ const AuthStateHandler = ({
   return null;
 };
 
-export const AuthProvider = React.forwardRef<{ onError?: (error: Error) => void }, AuthProviderProps>(({ children, onError }, ref) => {
+export const AuthProvider = React.forwardRef<AuthProviderRef, AuthProviderProps>(({ children, onError }, ref) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const toastRef = useRef<ToastFunction>(defaultToast);
   const router = useRouter();
-  const { toast } = useToast();
+  
+  // Set the toast function from the provider
+  const setToast = useCallback((toastFn: ToastFunction) => {
+    toastRef.current = toastFn;
+  }, []);
   
   // Check if user is authenticated by validating the token
   const checkAuth = useCallback(async (): Promise<boolean> => {
@@ -180,20 +187,14 @@ export const AuthProvider = React.forwardRef<{ onError?: (error: Error) => void 
         });
       }
       
+      // Show success message before redirect
+      toastRef.current('You have been signed out.');
+      
       // Force a hard redirect to ensure all state is cleared
       window.location.href = '/';
-      
-      toast({
-        title: 'Logged out successfully',
-        description: 'You have been signed out.',
-      });
     } catch (error) {
       console.error('Error signing out:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to sign out. Please try again.',
-        variant: 'destructive',
-      });
+      toastRef.current('Failed to sign out. Please try again.', 'destructive');
     }
   };
 
@@ -203,26 +204,28 @@ export const AuthProvider = React.forwardRef<{ onError?: (error: Error) => void 
     }
   };
 
-  // Expose the onError handler via ref
+  // Expose the onError handler and setToast via ref
   React.useImperativeHandle(ref, () => ({
     onError: (error: Error) => {
-      if (onError) onError(error);
+      handleError(error);
+    },
+    setToast: (toastFn: ToastFunction) => {
+      toastRef.current = toastFn;
     }
   }), [onError]);
 
   const handleError = useCallback((error: Error) => {
     console.error('Auth Error:', error);
     
-    // Show toast notification
-    toast({
-      title: 'Error',
-      description: error.message,
-      variant: 'destructive',
-    });
+    // Use the toast callback if available
+    if (toastRef.current) {
+      toastRef.current(error.message, 'destructive');
+    }
     
-    // Call the onError callback if provided
-    if (onError) onError(error);
-  }, [onError, toast]);
+    if (onError) {
+      onError(error);
+    }
+  }, [onError]);
 
   // Only render children when not loading or when we have a user
   const shouldRenderChildren = !loading || user;
@@ -273,17 +276,20 @@ export const AuthProvider = React.forwardRef<{ onError?: (error: Error) => void 
     verifyAuth();
   }, [checkAuth]);
 
+  const contextValue = {
+    user,
+    loading,
+    isAuthenticated,
+    signOut,
+    refreshUser,
+    checkAuth
+  };
+
   return (
-    <AuthContext.Provider 
-      value={{ 
-        user, 
-        loading, 
-        isAuthenticated,
-        signOut, 
-        refreshUser,
-        checkAuth
-      }}
-    >
+    <AuthContext.Provider value={contextValue}>
+      {React.Children.map(children, child => {
+        return React.cloneElement(child as React.ReactElement, { setToast });
+      })}
       {!loading ? children : <Skeleton className="h-screen w-full" />}
     </AuthContext.Provider>
   );

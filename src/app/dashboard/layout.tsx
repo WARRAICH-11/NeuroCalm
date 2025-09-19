@@ -35,13 +35,27 @@ export default function DashboardLayout({
           </Link>
         </div>
         <nav className="flex-1 overflow-auto py-4">
-          <div className="grid items-start px-4 text-sm font-medium">
+          <div className="grid items-start px-4 text-sm font-medium space-y-1">
             <Link
               href="/dashboard"
-              className="flex items-center gap-3 rounded-lg bg-muted px-3 py-2 text-primary transition-all hover:text-primary"
+              className="flex items-center gap-3 rounded-lg px-3 py-2 text-foreground hover:bg-muted transition-colors"
             >
               <LayoutGrid className="h-4 w-4" />
               Dashboard
+            </Link>
+            <Link
+              href="/profile"
+              className="flex items-center gap-3 rounded-lg px-3 py-2 text-foreground hover:bg-muted transition-colors"
+            >
+              <User className="h-4 w-4" />
+              Profile
+            </Link>
+            <Link
+              href="/support"
+              className="flex items-center gap-3 rounded-lg px-3 py-2 text-foreground hover:bg-muted transition-colors"
+            >
+              <LifeBuoy className="h-4 w-4" />
+              Support
             </Link>
           </div>
         </nav>

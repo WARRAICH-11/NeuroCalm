@@ -19,6 +19,7 @@ import { useAuth } from "@/lib/firebase/auth-provider";
 import { Skeleton } from "../ui/skeleton";
 import { doSignOut } from "@/lib/firebase/auth";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export function UserNav() {
   const { user, loading } = useAuth();
@@ -53,16 +54,20 @@ export function UserNav() {
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>
-          <UserIcon className="mr-2 h-4 w-4" />
-          <span>Profile</span>
+        <DropdownMenuItem asChild>
+          <Link href="/profile" className="w-full cursor-pointer">
+            <UserIcon className="mr-2 h-4 w-4" />
+            <span>Profile</span>
+          </Link>
         </DropdownMenuItem>
-        <DropdownMenuItem>
-          <LifeBuoy className="mr-2 h-4 w-4" />
-          <span>Support</span>
+        <DropdownMenuItem asChild>
+          <Link href="/support" className="w-full cursor-pointer">
+            <LifeBuoy className="mr-2 h-4 w-4" />
+            <span>Support</span>
+          </Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={handleLogout}>
+        <DropdownMenuItem onClick={handleLogout} className="cursor-pointer">
           <LogOut className="mr-2 h-4 w-4" />
           <span>Log out</span>
         </DropdownMenuItem>

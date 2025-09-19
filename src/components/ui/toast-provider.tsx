@@ -13,17 +13,7 @@ interface ToastProviderProps {
   setToast?: (toastFn: ToastFunction) => void;
 }
 
-export function ToastProvider({ children, setToast }: ToastProviderProps) {
-  return (
-    <RadixToastProvider>
-      {setToast && <ToastCallback setToast={setToast} />}
-      {children}
-      <Toaster />
-    </RadixToastProvider>
-  );
-}
-
-// Internal component to handle the toast callback
+// Internal component to handle toast callback
 function ToastCallback({ setToast }: { setToast: (toastFn: ToastFunction) => void }) {
   const { toast } = useToast();
 
@@ -43,4 +33,14 @@ function ToastCallback({ setToast }: { setToast: (toastFn: ToastFunction) => voi
   }, [setToast, toast]);
 
   return null;
+}
+
+export function ToastProvider({ children, setToast }: ToastProviderProps) {
+  return (
+    <RadixToastProvider>
+      {setToast && <ToastCallback setToast={setToast} />}
+      {children}
+      <Toaster />
+    </RadixToastProvider>
+  );
 }

@@ -287,10 +287,13 @@ export const AuthProvider = React.forwardRef<AuthProviderRef, AuthProviderProps>
 
   return (
     <AuthContext.Provider value={contextValue}>
-      {React.Children.map(children, child => {
-        return React.cloneElement(child as React.ReactElement, { setToast });
-      })}
-      {!loading ? children : <Skeleton className="h-screen w-full" />}
+      {!loading ? (
+        React.Children.map(children, child => 
+          React.cloneElement(child as React.ReactElement, { setToast })
+        )
+      ) : (
+        <Skeleton className="h-screen w-full" />
+      )}
     </AuthContext.Provider>
   );
 });

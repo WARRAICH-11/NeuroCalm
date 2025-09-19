@@ -22,7 +22,6 @@ export function AuthWrapper({ children }: { children: ReactNode }) {
       <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
         <ToastProvider setToast={handleSetToast}>
           {children}
-          <Toaster />
         </ToastProvider>
       </ThemeProvider>
     </AuthProvider>

@@ -5,7 +5,6 @@ import { Toaster } from "@/components/ui/toaster";
 import { Analytics } from "@vercel/analytics/next";
 import { MainNav } from '@/components/main-nav';
 import { AuthWrapper } from '@/components/auth/auth-wrapper';
-import { TestToastButton } from '@/components/TestToastButton';
 
 export const metadata: Metadata = {
   title: 'NeuroCalm',
@@ -56,10 +55,8 @@ export default function RootLayout({
             </header>
             <main className="flex-1">
               <div className="container py-4">
-                {/* Test button is now inside ToastProvider */}
+                {children}
               </div>
-              {children}
-              <TestToastButton />
             </main>
             <footer className="border-t py-6">
               <div className="container flex flex-col items-center justify-between gap-4 md:h-24 md:flex-row">

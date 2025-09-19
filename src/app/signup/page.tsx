@@ -7,48 +7,66 @@ import { NeuroCalmIcon } from "@/components/icons";
 import { useAuth } from "@/lib/firebase/auth-provider";
 import { useEffect, useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
-import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { auth } from "@/lib/firebase/config";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
 
 const googleProvider = new GoogleAuthProvider();
 
-export default function LoginPage() {
+export default function SignupPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, loading } = useAuth();
-  const [isSigningIn, setIsSigningIn] = useState(false);
+  const [isSigningUp, setIsSigningUp] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const { toast } = useToast();
 
   useEffect(() => {
-    // Only redirect if we're not in the middle of signing in
-    if (user && !isSigningIn) {
+    // Only redirect if we're not in the middle of signing up
+    if (user && !isSigningUp) {
       const redirectTo = searchParams.get('redirect') || '/dashboard';
       router.push(redirectTo);
     }
-  }, [user, router, isSigningIn, searchParams]);
+  }, [user, router, isSigningUp, searchParams]);
 
-  const handleEmailLogin = async (e: React.FormEvent) => {
+  const handleEmailSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (isSigningIn) return;
     
-    setIsSigningIn(true);
+    if (password !== confirmPassword) {
+      toast({
+        title: "Error",
+        description: "Passwords do not match",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    if (password.length < 6) {
+      toast({
+        title: "Error",
+        description: "Password must be at least 6 characters",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    setIsSigningUp(true);
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      await createUserWithEmailAndPassword(auth, email, password);
       // The auth state change will handle the redirect
     } catch (error: any) {
-      console.error("Sign-in failed", error);
-      let errorMessage = 'Sign-in failed';
+      console.error("Sign-up failed", error);
+      let errorMessage = 'Sign-up failed';
       
-      if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
-        errorMessage = 'Invalid email or password';
-      } else if (error.code === 'auth/too-many-requests') {
-        errorMessage = 'Too many failed attempts. Please try again later.';
-      } else if (error.code === 'auth/user-disabled') {
-        errorMessage = 'This account has been disabled.';
+      if (error.code === 'auth/email-already-in-use') {
+        errorMessage = 'An account already exists with this email';
+      } else if (error.code === 'auth/invalid-email') {
+        errorMessage = 'Please enter a valid email address';
+      } else if (error.code === 'auth/weak-password') {
+        errorMessage = 'Please choose a stronger password';
       }
       
       toast({
@@ -57,21 +75,21 @@ export default function LoginPage() {
         variant: "destructive"
       });
     } finally {
-      setIsSigningIn(false);
+      setIsSigningUp(false);
     }
   };
   
-  const handleGoogleSignIn = async () => {
-    if (isSigningIn) return;
+  const handleGoogleSignUp = async () => {
+    if (isSigningUp) return;
     
-    setIsSigningIn(true);
+    setIsSigningUp(true);
     try {
       await signInWithPopup(auth, googleProvider);
       // The auth state change will handle the redirect
     } catch (error: any) {
-      console.error("Google sign-in failed", error);
+      console.error("Google sign-up failed", error);
       
-      let errorMessage = 'Google sign-in failed';
+      let errorMessage = 'Google sign-up failed';
       if (error.code === 'auth/account-exists-with-different-credential') {
         errorMessage = 'An account already exists with the same email but different sign-in credentials';
       }
@@ -82,10 +100,10 @@ export default function LoginPage() {
         variant: "destructive"
       });
     } finally {
-      setIsSigningIn(false);
+      setIsSigningUp(false);
     }
   };
-  
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 py-12 px-4 sm:px-6 lg:px-8">
@@ -101,10 +119,11 @@ export default function LoginPage() {
               <div className="h-10 bg-gray-200 animate-pulse rounded-md"></div>
             </div>
             <div className="space-y-2">
-              <div className="flex justify-between">
-                <div className="h-4 w-16 bg-gray-200 animate-pulse rounded-md"></div>
-                <div className="h-4 w-24 bg-gray-200 animate-pulse rounded-md"></div>
-              </div>
+              <div className="h-4 w-24 bg-gray-200 animate-pulse rounded-md"></div>
+              <div className="h-10 bg-gray-200 animate-pulse rounded-md"></div>
+            </div>
+            <div className="space-y-2">
+              <div className="h-4 w-32 bg-gray-200 animate-pulse rounded-md"></div>
               <div className="h-10 bg-gray-200 animate-pulse rounded-md"></div>
             </div>
             <div className="h-10 bg-gray-200 animate-pulse rounded-md"></div>
@@ -132,14 +151,14 @@ export default function LoginPage() {
             <NeuroCalmIcon className="h-12 w-12 text-primary" />
           </div>
           <CardTitle className="text-2xl font-bold text-center text-gray-900">
-            Welcome to NeuroCalm
+            Create an account
           </CardTitle>
           <CardDescription className="text-center text-gray-600">
-            Sign in to access your personalized dashboard
+            Join NeuroCalm and start your journey to better mental health
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleEmailLogin} className="space-y-4">
+          <form onSubmit={handleEmailSignUp} className="space-y-4">
             <div className="space-y-2">
               <label className="text-sm font-medium text-gray-700" htmlFor="email">
                 Email
@@ -155,33 +174,42 @@ export default function LoginPage() {
               />
             </div>
             <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <label className="text-sm font-medium text-gray-700" htmlFor="password">
-                  Password
-                </label>
-                <Link 
-                  href="/reset-password" 
-                  className="text-sm text-primary hover:underline"
-                >
-                  Forgot password?
-                </Link>
-              </div>
+              <label className="text-sm font-medium text-gray-700" htmlFor="password">
+                Password
+              </label>
               <Input
                 id="password"
                 type="password"
-                placeholder="Enter your password"
+                placeholder="Create a password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+                minLength={6}
+                className="w-full"
+              />
+              <p className="text-xs text-gray-500">Must be at least 6 characters</p>
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-700" htmlFor="confirmPassword">
+                Confirm Password
+              </label>
+              <Input
+                id="confirmPassword"
+                type="password"
+                placeholder="Confirm your password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+                minLength={6}
                 className="w-full"
               />
             </div>
             <Button 
               type="submit" 
               className="w-full" 
-              disabled={isSigningIn}
+              disabled={isSigningUp}
             >
-              {isSigningIn ? 'Signing in...' : 'Sign In'}
+              {isSigningUp ? 'Creating account...' : 'Create Account'}
             </Button>
           </form>
           
@@ -196,8 +224,8 @@ export default function LoginPage() {
           
           <div className="space-y-4">
             <Button
-              onClick={handleGoogleSignIn}
-              disabled={isSigningIn}
+              onClick={handleGoogleSignUp}
+              disabled={isSigningUp}
               className="w-full flex items-center justify-center gap-2 bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
               variant="outline"
               type="button"
@@ -225,10 +253,19 @@ export default function LoginPage() {
           </div>
           
           <div className="mt-6 text-center text-sm text-gray-600">
-            Don't have an account?{' '}
-            <Link href="/signup" className="font-medium text-primary hover:underline">
-              Sign up
+            Already have an account?{' '}
+            <Link 
+              href={`/login${searchParams.get('redirect') ? `?redirect=${encodeURIComponent(searchParams.get('redirect')!)}` : ''}`} 
+              className="font-medium text-primary hover:underline"
+            >
+              Sign in
             </Link>
+          </div>
+          
+          <div className="mt-4 text-center text-xs text-gray-500">
+            By signing up, you agree to our{' '}
+            <Link href="/terms" className="text-primary hover:underline">Terms of Service</Link> and{' '}
+            <Link href="/privacy" className="text-primary hover:underline">Privacy Policy</Link>.
           </div>
         </CardContent>
       </Card>

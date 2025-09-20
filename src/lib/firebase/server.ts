@@ -22,11 +22,18 @@ if (typeof window === 'undefined') {
     if (missingVars.length > 0) {
       console.error('Missing Firebase environment variables:', missingVars);
     } else {
+      // Handle private key formatting for different environments
+      let privateKey = process.env.FIREBASE_PRIVATE_KEY;
+      
+      // For Vercel, the private key might be stored with escaped newlines
+      if (privateKey && !privateKey.includes('-----BEGIN PRIVATE KEY-----')) {
+        privateKey = privateKey.replace(/\\n/g, '\n');
+      }
+      
       const serviceAccount = {
         projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
         clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-        // Handle private key formatting for Vercel
-        privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n') || process.env.FIREBASE_PRIVATE_KEY,
+        privateKey: privateKey,
       };
 
       const firebaseAdminConfig = {

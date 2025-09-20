@@ -1,4 +1,4 @@
-# **App Name**: NeuroCalm - AI Brain Coach
+# **App Name**: NeuroCalm - AI Brain Coach v2.0
 
 ![Landingpage](image.png)
 

@@ -81,13 +81,14 @@ export const AuthProvider = React.forwardRef<AuthProviderRef, AuthProviderProps>
   // Check if user is authenticated by validating the token
   const checkAuth = useCallback(async (): Promise<boolean> => {
     try {
+      await auth.authStateReady();
       const currentUser = auth.currentUser;
       if (!currentUser) {
         return false;
       }
-      // Force token refresh to check if it's still valid
-      await currentUser.getIdToken(true);
-      return true;
+      // Get the token without forcing a refresh first
+      const token = await currentUser.getIdToken();
+      return !!token;
     } catch (error) {
       console.error('Auth check failed:', error);
       return false;
@@ -230,36 +231,73 @@ export const AuthProvider = React.forwardRef<AuthProviderRef, AuthProviderProps>
   // Only render children when not loading or when we have a user
   const shouldRenderChildren = !loading || user;
 
-  // Set up the auth state listener
+  // Set up the auth state listener - single source of truth for auth state
   useEffect(() => {
+    let isMounted = true;
+    
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      await handleAuthStateChange(user);
-    });
-
-    return () => unsubscribe();
-  }, [handleAuthStateChange]);
-
-  // Handle auth state changes
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        const isValid = await checkAuth();
-        if (isValid) {
-          setUser(user);
-          setIsAuthenticated(true);
+      if (!isMounted) return;
+      
+      try {
+        if (user) {
+          // Get fresh token
+          const token = await user.getIdToken();
+          if (token) {
+            // Update session
+            const response = await fetch('/api/auth/session', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              credentials: 'same-origin',
+              body: JSON.stringify({ idToken: token })
+            });
+            
+            if (!response.ok) {
+              throw new Error('Failed to update session');
+            }
+            
+            // Only update state if still mounted
+            if (isMounted) {
+              setUser(user);
+              setIsAuthenticated(true);
+            }
+          } else {
+            throw new Error('No token available');
+          }
         } else {
-          // If token is invalid, force sign out
-          await signOut();
+          // Clear session when signed out
+          await fetch('/api/auth/session', {
+            method: 'DELETE',
+            credentials: 'same-origin'
+          });
+          
+          if (isMounted) {
+            setUser(null);
+            setIsAuthenticated(false);
+          }
         }
-      } else {
-        setUser(null);
-        setIsAuthenticated(false);
+      } catch (error) {
+        console.error('Auth state change error:', error);
+        if (isMounted) {
+          setUser(null);
+          setIsAuthenticated(false);
+        }
+        
+        // Only sign out if we have a user but encountered an error
+        if (user) {
+          await firebaseSignOut(auth);
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
       }
-      setLoading(false);
     });
 
-    return () => unsubscribe();
-  }, [checkAuth]);
+    return () => {
+      isMounted = false;
+      unsubscribe();
+    };
+  }, []);
 
   // Initial auth check
   useEffect(() => {

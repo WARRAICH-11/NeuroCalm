@@ -24,12 +24,13 @@ export function LoginForm() {
   const { toast } = useToast();
 
   useEffect(() => {
-    // Only redirect if we're not in the middle of signing in
+    // Only redirect if we're not in the middle of signing in and user is authenticated
     if (user && !isSigningIn) {
       const redirectTo = searchParams.get('redirect') || '/dashboard';
-      router.push(redirectTo);
+      // Use replace instead of push to prevent back button issues
+      router.replace(redirectTo);
     }
-  }, [user, router, isSigningIn, searchParams]);
+  }, [user, isSigningIn, searchParams, router]);
 
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,7 +39,8 @@ export function LoginForm() {
     setIsSigningIn(true);
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      // The auth state change will handle the redirect
+      // Wait for auth state to update
+      await new Promise(resolve => setTimeout(resolve, 1000));
     } catch (error: any) {
       console.error("Sign-in failed", error);
       let errorMessage = 'Sign-in failed';
@@ -49,6 +51,8 @@ export function LoginForm() {
         errorMessage = 'Too many failed attempts. Please try again later.';
       } else if (error.code === 'auth/user-disabled') {
         errorMessage = 'This account has been disabled.';
+      } else if (error.code === 'auth/network-request-failed') {
+        errorMessage = 'Network error. Please check your connection.';
       }
       
       toast({

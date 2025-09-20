@@ -80,13 +80,9 @@ const nextConfig: NextConfig = {
   // Enable compression
   compress: true,
 
-  // Enable SWC minification
-  swcMinify: true,
-
   // Optimize bundle size
   experimental: {
-    optimizeCss: true,
-    optimizePackageImports: ['lucide-react', '@radix-ui/react-icons'],
+    // optimizePackageImports: ['lucide-react', '@radix-ui/react-icons'],
   },
 
   // Configure images

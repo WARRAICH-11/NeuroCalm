@@ -14,7 +14,7 @@ class PerformanceMonitor {
     this.isEnabled = process.env.NODE_ENV === 'production'
   }
 
-  private addMetric(metric: PerformanceMetric): void {
+  public addMetric(metric: PerformanceMetric): void {
     this.metrics.push(metric)
     
     // Keep only last 100 metrics to prevent memory leaks

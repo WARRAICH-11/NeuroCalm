@@ -30,7 +30,7 @@ export class RateLimiter {
     
     // Default: use IP address
     const forwarded = req.headers.get('x-forwarded-for')
-    const ip = forwarded ? forwarded.split(',')[0] : req.ip || 'unknown'
+    const ip = forwarded ? forwarded.split(',')[0] : req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || 'unknown'
     return ip
   }
 

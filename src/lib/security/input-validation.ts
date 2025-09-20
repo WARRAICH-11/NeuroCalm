@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { NextRequest } from 'next/server'
 
 // Common validation schemas
 export const emailSchema = z.string().email('Invalid email format')

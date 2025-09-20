@@ -46,7 +46,10 @@ export async function submitDailyCheckin(
       };
     }
 
-    const checkInData: CheckInData = validationResult.data;
+    const checkInData: CheckInData = {
+      ...validationResult.data,
+      userGoals: validationResult.data.userGoals || ''
+    };
 
     // 1. Analyze mental state and get scores
     const mentalState = await analyzeMentalStateAndProvideScores({

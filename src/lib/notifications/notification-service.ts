@@ -52,7 +52,7 @@ class NotificationService {
       data: options.data,
       requireInteraction: options.requireInteraction,
       silent: options.silent,
-      actions: options.actions,
+      // actions: options.actions, // Not supported in all browsers
     })
 
     // Auto-close after 5 seconds unless requireInteraction is true
@@ -229,7 +229,7 @@ export function useNotifications() {
     showMotivationalMessage,
     scheduleDailyReminder,
     clearAllNotifications,
-    isSupported: notificationService.isSupported,
-    permission: notificationService.permission,
+    isSupported: notificationService.isSupported(),
+    permission: notificationService.getPermission(),
   }
 }

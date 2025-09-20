@@ -1,4 +1,4 @@
-import { format } from 'date-fns'
+import { format as formatDate } from 'date-fns'
 
 interface ExportOptions {
   format: 'json' | 'csv' | 'pdf'
@@ -127,9 +127,9 @@ export class DataExporter {
   }
 
   static generateFilename(format: string, dateRange?: { start: Date; end: Date }): string {
-    const timestamp = format(new Date(), 'yyyy-MM-dd')
+    const timestamp = formatDate(new Date(), 'yyyy-MM-dd')
     const range = dateRange 
-      ? `_${format(dateRange.start, 'yyyy-MM-dd')}_to_${format(dateRange.end, 'yyyy-MM-dd')}`
+      ? `_${formatDate(dateRange.start, 'yyyy-MM-dd')}_to_${formatDate(dateRange.end, 'yyyy-MM-dd')}`
       : ''
     
     return `neurocalm_export_${timestamp}${range}.${format}`

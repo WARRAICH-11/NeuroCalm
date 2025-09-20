@@ -225,12 +225,12 @@ export function trackWebVitals() {
 
   // Import and use web-vitals library if available
   if (typeof window !== 'undefined') {
-    import('web-vitals').then(({ getCLS, getFID, getFCP, getLCP, getTTFB }) => {
-      getCLS(trackCLS)
-      getFID(trackFID)
-      getFCP(trackFCP)
-      getLCP(trackLCP)
-      getTTFB(trackTTFB)
+    import('web-vitals').then(({ onCLS, onFID, onFCP, onLCP, onTTFB }) => {
+      onCLS(trackCLS)
+      onFID(trackFID)
+      onFCP(trackFCP)
+      onLCP(trackLCP)
+      onTTFB(trackTTFB)
     }).catch(() => {
       // web-vitals not available, skip tracking
     })

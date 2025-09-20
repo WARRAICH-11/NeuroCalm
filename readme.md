@@ -1,4 +1,4 @@
-# **App Name**: NeuroCalm
+# **App Name**: NeuroCalm - AI Brain Coach
 
 ![Landingpage](image.png)
 

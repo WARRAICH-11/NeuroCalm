@@ -3,12 +3,32 @@ import { auth } from '@/lib/firebase/server';
 import { cookies } from 'next/headers';
 import { NextRequest } from 'next/server';
 
+// Check if Firebase Admin is properly initialized
+if (!auth) {
+  console.error('Firebase Admin auth is not initialized. Check environment variables.');
+}
+
 const SESSION_COOKIE_NAME = '__session';
 const SESSION_MAX_AGE = 60 * 60 * 24 * 5; // 5 days in seconds
 
 export async function POST(request: NextRequest) {
   try {
+    if (!auth) {
+      console.error('Firebase Admin auth is not initialized');
+      return new NextResponse(
+        JSON.stringify({ error: 'Authentication service unavailable' }),
+        { status: 500, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+
     const { idToken } = await request.json();
+    
+    if (!idToken) {
+      return new NextResponse(
+        JSON.stringify({ error: 'ID token is required' }),
+        { status: 400, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
     
     // Set session expiration to 5 days.
     const expiresIn = 60 * 60 * 24 * 5 * 1000;
@@ -64,6 +84,14 @@ export async function DELETE() {
 
 export async function GET() {
   try {
+    if (!auth) {
+      console.error('Firebase Admin auth is not initialized');
+      return new NextResponse(
+        JSON.stringify({ authenticated: false, error: 'Auth service unavailable' }),
+        { status: 200, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+
     const cookieStore = await cookies();
     const session = cookieStore.get(SESSION_COOKIE_NAME)?.value;
     
@@ -82,6 +110,7 @@ export async function GET() {
       { status: 200, headers: { 'Content-Type': 'application/json' } }
     );
   } catch (error) {
+    console.error('Session verification error:', error);
     // Clear invalid session
     const response = new NextResponse(
       JSON.stringify({ authenticated: false }),

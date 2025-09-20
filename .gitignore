@@ -69,3 +69,5 @@ firebase-*.log
 *.log
 logs
 *.pem
+# Sentry Config File
+.env.sentry-build-plugin

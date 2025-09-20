@@ -6,6 +6,9 @@ import { providePersonalizedRecommendations } from "@/ai/flows/provide-personali
 import { recommendHabitTools } from "@/ai/flows/recommend-habit-tools";
 import { answerQuestionsAndProvideGuidance } from "@/ai/flows/answer-questions-and-provide-guidance";
 import type { CheckInData, Score, DailyState } from "@/lib/types";
+import { SchemaValidator, schemas } from "@/lib/validation/schema-validator";
+import { ApiErrorHandler } from "@/lib/error-handling/api-error-handler";
+import { errorTracker } from "@/lib/monitoring/error-tracker";
 
 const checkInSchema = z.object({
   mood: z.coerce.number().min(1).max(10),
@@ -28,14 +31,22 @@ export async function submitDailyCheckin(
   };
   error?: string;
 }> {
-  const parsed = checkInSchema.safeParse(Object.fromEntries(formData.entries()));
-
-  if (!parsed.success) {
-    return { status: "error", error: "Invalid form data." };
-  }
-
   try {
-    const checkInData: CheckInData = parsed.data;
+    // Enhanced validation with better error handling
+    const validationResult = SchemaValidator.validate(
+      schemas.dailyCheckIn,
+      Object.fromEntries(formData.entries()),
+      'dailyCheckIn'
+    );
+
+    if (!validationResult.success) {
+      return { 
+        status: "error", 
+        error: `Validation failed: ${validationResult.errors.join(', ')}` 
+      };
+    }
+
+    const checkInData: CheckInData = validationResult.data;
 
     // 1. Analyze mental state and get scores
     const mentalState = await analyzeMentalStateAndProvideScores({
@@ -56,7 +67,7 @@ export async function submitDailyCheckin(
       await providePersonalizedRecommendations({
         calmIndex: scores.calmIndex,
         productivityIndex: scores.productivityIndex,
-        userGoals: checkInData.userGoals,
+        userGoals: checkInData.userGoals || '',
       });
 
     // 3. Get habit tool recommendations
@@ -79,6 +90,15 @@ export async function submitDailyCheckin(
       },
     };
   } catch (error) {
+    // Enhanced error handling with monitoring
+    errorTracker.captureError(error as Error, {
+      tags: {
+        component: 'submitDailyCheckin',
+        action: 'daily_checkin',
+      },
+      severity: 'high',
+    });
+
     console.error("AI flow error:", error);
     return { status: "error", error: "Failed to process data. Please try again." };
   }
@@ -102,30 +122,32 @@ const chatSchema = z.object({
 export async function submitChatMessage(
   formData: FormData
 ): Promise<{ status: "success" | "error"; answer?: string; error?: string }> {
-  const question = formData.get("question") as string;
-  const checkInData = JSON.parse(formData.get("checkInData") as string);
-  const scores = JSON.parse(formData.get("scores") as string);
-
-  const parsed = chatSchema.safeParse({
-    question,
-    checkInData,
-    scores,
-  });
-
-  if (!parsed.success) {
-    console.error(parsed.error.flatten());
-    return { status: "error", error: "Invalid chat data." };
-  }
-
-  const { question: userQuestion, checkInData: userCheckIn, scores: userScores } = parsed.data;
-  
-  // Handle case where user hasn't checked in yet
-  if (userCheckIn.diet === '' || userScores.calmIndex === 0) {
-      return { status: 'success', answer: "I can answer your questions more effectively once you've completed your daily check-in. Please fill out the check-in form first." };
-  }
-
-
   try {
+    const question = formData.get("question") as string;
+    const checkInData = JSON.parse(formData.get("checkInData") as string);
+    const scores = JSON.parse(formData.get("scores") as string);
+
+    // Enhanced validation
+    const validationResult = SchemaValidator.validate(
+      schemas.chatMessage,
+      { question, checkInData, scores },
+      'chatMessage'
+    );
+
+    if (!validationResult.success) {
+      return { 
+        status: "error", 
+        error: `Validation failed: ${validationResult.errors.join(', ')}` 
+      };
+    }
+
+    const { question: userQuestion, checkInData: userCheckIn, scores: userScores } = validationResult.data;
+  
+    // Handle case where user hasn't checked in yet
+    if (userCheckIn.diet === '' || userScores.calmIndex === 0) {
+        return { status: 'success', answer: "I can answer your questions more effectively once you've completed your daily check-in. Please fill out the check-in form first." };
+    }
+
     const { answer } = await answerQuestionsAndProvideGuidance({
       question: userQuestion,
       calmIndex: userScores.calmIndex,
@@ -138,6 +160,15 @@ export async function submitChatMessage(
     });
     return { status: "success", answer };
   } catch (error) {
+    // Enhanced error handling with monitoring
+    errorTracker.captureError(error as Error, {
+      tags: {
+        component: 'submitChatMessage',
+        action: 'chat_message',
+      },
+      severity: 'medium',
+    });
+
     console.error("Chat AI flow error:", error);
     return {
       status: "error",

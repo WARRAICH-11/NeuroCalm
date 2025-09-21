@@ -38,9 +38,13 @@ export function LoginForm() {
     
     setIsSigningIn(true);
     try {
-      await signInWithEmailAndPassword(auth, email, password);
-      // Wait for auth state to update
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      
+      // Force immediate redirect after successful sign-in
+      if (userCredential.user) {
+        const redirectTo = searchParams.get('redirect') || '/dashboard';
+        router.replace(redirectTo);
+      }
     } catch (error: any) {
       console.error("Sign-in failed", error);
       let errorMessage = 'Sign-in failed';
@@ -70,8 +74,13 @@ export function LoginForm() {
     
     setIsSigningIn(true);
     try {
-      await signInWithPopup(auth, googleProvider);
-      // The auth state change will handle the redirect
+      const userCredential = await signInWithPopup(auth, googleProvider);
+      
+      // Force immediate redirect after successful sign-in
+      if (userCredential.user) {
+        const redirectTo = searchParams.get('redirect') || '/dashboard';
+        router.replace(redirectTo);
+      }
     } catch (error) {
       console.error("Google sign-in failed", error);
       toast({

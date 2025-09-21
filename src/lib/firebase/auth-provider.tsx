@@ -95,6 +95,19 @@ export const AuthProvider = React.forwardRef<AuthProviderRef, AuthProviderProps>
     }
   }, []);
 
+  // Force refresh user data
+  const refreshUser = useCallback(async (): Promise<void> => {
+    if (user) {
+      try {
+        await user.reload();
+        // Force a re-render by updating the user state
+        setUser({ ...user });
+      } catch (error) {
+        console.error('Failed to refresh user:', error);
+      }
+    }
+  }, [user]);
+
   const handleAuthStateChange = useCallback(async (user: User | null) => {
     setLoading(true);
     try {

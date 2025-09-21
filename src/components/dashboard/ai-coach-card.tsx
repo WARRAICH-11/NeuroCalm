@@ -48,56 +48,56 @@ export default function AiCoachCard({
   };
 
   return (
-    <Card className="flex flex-col h-[500px]">
-      <CardHeader>
-        <CardTitle>AI Brain Coach</CardTitle>
+    <Card className="flex flex-col h-[400px] sm:h-[500px]">
+      <CardHeader className="pb-3">
+        <CardTitle className="text-lg sm:text-xl">AI Brain Coach</CardTitle>
       </CardHeader>
-      <CardContent className="flex-grow flex flex-col gap-4 overflow-hidden">
-        <ScrollArea className="flex-grow pr-4" ref={scrollAreaRef}>
-          <div className="space-y-4">
+      <CardContent className="flex-grow flex flex-col gap-3 sm:gap-4 overflow-hidden">
+        <ScrollArea className="flex-grow pr-2 sm:pr-4" ref={scrollAreaRef}>
+          <div className="space-y-3 sm:space-y-4">
             {chatHistory.map((message, index) => (
               <div
                 key={index}
                 className={cn(
-                  "flex items-start gap-3",
+                  "flex items-start gap-2 sm:gap-3",
                   message.role === "user" ? "justify-end" : ""
                 )}
               >
                 {message.role === "assistant" && (
-                  <Avatar className="h-8 w-8">
+                  <Avatar className="h-6 w-6 sm:h-8 sm:w-8 flex-shrink-0">
                     <AvatarFallback className="bg-primary text-primary-foreground">
-                      <Bot className="h-5 w-5" />
+                      <Bot className="h-3 w-3 sm:h-5 sm:w-5" />
                     </AvatarFallback>
                   </Avatar>
                 )}
                 <div
                   className={cn(
-                    "rounded-lg px-3 py-2 max-w-sm",
+                    "rounded-lg px-3 py-2 max-w-[85%] sm:max-w-sm",
                     message.role === "assistant"
                       ? "bg-muted"
                       : "bg-primary text-primary-foreground"
                   )}
                 >
-                  <p className="text-sm">{message.content}</p>
+                  <p className="text-xs sm:text-sm leading-relaxed">{message.content}</p>
                 </div>
                  {message.role === "user" && (
-                  <Avatar className="h-8 w-8">
+                  <Avatar className="h-6 w-6 sm:h-8 sm:w-8 flex-shrink-0">
                     <AvatarFallback>
-                        <User className="h-5 w-5" />
+                        <User className="h-3 w-3 sm:h-5 sm:w-5" />
                     </AvatarFallback>
                   </Avatar>
                 )}
               </div>
             ))}
             {isPending && chatHistory[chatHistory.length - 1]?.role === "user" && (
-               <div className="flex items-start gap-3">
-                 <Avatar className="h-8 w-8">
+               <div className="flex items-start gap-2 sm:gap-3">
+                 <Avatar className="h-6 w-6 sm:h-8 sm:w-8 flex-shrink-0">
                     <AvatarFallback className="bg-primary text-primary-foreground">
-                      <Bot className="h-5 w-5" />
+                      <Bot className="h-3 w-3 sm:h-5 sm:w-5" />
                     </AvatarFallback>
                   </Avatar>
                   <div className="rounded-lg px-3 py-2 bg-muted flex items-center">
-                    <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                    <Loader2 className="h-4 w-4 sm:h-5 sm:w-5 animate-spin text-muted-foreground" />
                   </div>
                </div>
             )}
@@ -109,8 +109,9 @@ export default function AiCoachCard({
             onChange={(e) => setInput(e.target.value)}
             placeholder="Ask your coach..."
             disabled={isPending}
+            className="text-sm sm:text-base"
           />
-          <Button type="submit" disabled={isPending || !input.trim()}>
+          <Button type="submit" disabled={isPending || !input.trim()} size="sm" className="px-3">
             {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
           </Button>
         </form>

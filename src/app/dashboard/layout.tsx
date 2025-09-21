@@ -31,7 +31,8 @@ export default function DashboardLayout({
   return (
     <ProtectedRoute>
       <div className="flex min-h-screen w-full bg-muted/40">
-        <aside className="hidden w-64 flex-col border-r bg-background sm:flex">
+        {/* Desktop Sidebar */}
+        <aside className="hidden lg:flex w-64 flex-col border-r bg-background">
           <div className="flex h-16 items-center border-b px-6">
             <Link
               href="/"
@@ -75,21 +76,72 @@ export default function DashboardLayout({
             </Button>
           </div>
         </aside>
-        <div className="flex-1 flex flex-col overflow-hidden">
-          <header className="flex h-16 items-center gap-4 border-b bg-background px-6">
-            <h1 className="text-lg font-semibold">
+
+        {/* Mobile Bottom Navigation */}
+        <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-background border-t z-50">
+          <div className="flex justify-around py-2">
+            {navItems.map((item) => {
+              const isActive = pathname === item.href;
+              return (
+                <Button
+                  key={item.href}
+                  variant={isActive ? 'secondary' : 'ghost'}
+                  size="sm"
+                  className={cn(
+                    'flex flex-col items-center gap-1 h-auto py-2 px-3',
+                    isActive && 'bg-accent text-accent-foreground'
+                  )}
+                  asChild
+                >
+                  <Link href={item.href}>
+                    {item.icon}
+                    <span className="text-xs">{item.name}</span>
+                  </Link>
+                </Button>
+              );
+            })}
+            <Button
+              variant="ghost"
+              size="sm"
+              className="flex flex-col items-center gap-1 h-auto py-2 px-3 text-destructive hover:text-destructive"
+              onClick={signOut}
+            >
+              <LogOut className="h-4 w-4" />
+              <span className="text-xs">Sign Out</span>
+            </Button>
+          </div>
+        </div>
+
+        <div className="flex-1 flex flex-col overflow-hidden lg:ml-0 pb-16 lg:pb-0">
+          {/* Mobile Header */}
+          <header className="flex h-16 items-center gap-4 border-b bg-background px-4 lg:px-6">
+            <div className="lg:hidden">
+              <Link
+                href="/"
+                className="flex items-center gap-2 font-semibold"
+              >
+                <NeuroCalmIcon className="h-6 w-6" />
+                <span className="text-lg">NeuroCalm</span>
+              </Link>
+            </div>
+            <h1 className="text-lg font-semibold lg:block hidden">
               {navItems.find(item => pathname === item.href)?.name || 'Dashboard'}
             </h1>
-            <div className="ml-auto flex items-center gap-4">
-              <Button variant="outline" size="sm" asChild>
+            <div className="ml-auto flex items-center gap-2 lg:gap-4">
+              <Button variant="outline" size="sm" asChild className="hidden sm:flex">
                 <Link href="/">
                   <Home className="h-4 w-4 mr-2" />
                   Back to Home
                 </Link>
               </Button>
+              <Button variant="outline" size="sm" asChild className="sm:hidden">
+                <Link href="/">
+                  <Home className="h-4 w-4" />
+                </Link>
+              </Button>
             </div>
           </header>
-          <main className="flex-1 overflow-auto p-6">
+          <main className="flex-1 overflow-auto p-4 lg:p-6">
             {children}
           </main>
         </div>

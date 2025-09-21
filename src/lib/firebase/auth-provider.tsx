@@ -212,11 +212,6 @@ export const AuthProvider = React.forwardRef<AuthProviderRef, AuthProviderProps>
     }
   };
 
-  const refreshUser = async () => {
-    if (auth.currentUser) {
-      await handleAuthStateChange(auth.currentUser);
-    }
-  };
 
   // Expose the onError handler and setToast via ref
   React.useImperativeHandle(ref, () => ({

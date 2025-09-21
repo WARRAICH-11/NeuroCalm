@@ -21,37 +21,14 @@ export function ProtectedRoute({
   const router = useRouter();
 
   useEffect(() => {
-    const verifyAuth = async () => {
-      try {
-        const isValid = await checkAuth();
-        
-        if (!isValid) {
-          // Not authenticated, redirect to login
-          router.replace(redirectTo);
-          return;
-        }
-
-        if (requiredRole) {
-          // Check user role if required
-          const tokenResult = await user?.getIdTokenResult();
-          const hasRole = tokenResult?.claims.role === requiredRole;
-          
-          if (!hasRole) {
-            // User doesn't have required role, redirect to home or unauthorized page
-            router.replace('/unauthorized');
-            return;
-          }
-        }
-
-        setIsAuthorized(true);
-      } catch (error) {
-        console.error('Auth verification failed:', error);
-        router.replace(redirectTo);
-      }
-    };
-
-    verifyAuth();
-  }, [checkAuth, isAuthenticated, requiredRole, router, user, redirectTo]);
+    // Simple check - if user exists and isAuthenticated is true, allow access
+    if (!loading && isAuthenticated && user) {
+      setIsAuthorized(true);
+    } else if (!loading && !isAuthenticated) {
+      // Only redirect if we're sure the user is not authenticated
+      router.replace(redirectTo);
+    }
+  }, [loading, isAuthenticated, user, router, redirectTo]);
 
   if (loading || isAuthorized === null) {
     return (

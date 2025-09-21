@@ -55,8 +55,13 @@ export default function SignupPage() {
     
     setIsSigningUp(true);
     try {
-      await createUserWithEmailAndPassword(auth, email, password);
-      // The auth state change will handle the redirect
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      // Force immediate redirect after successful sign-up
+      if (userCredential.user) {
+        const redirectTo = searchParams.get('redirect') || '/dashboard';
+        // Force a page refresh to ensure all components update properly
+        window.location.href = redirectTo;
+      }
     } catch (error: any) {
       console.error("Sign-up failed", error);
       let errorMessage = 'Sign-up failed';
@@ -84,8 +89,13 @@ export default function SignupPage() {
     
     setIsSigningUp(true);
     try {
-      await signInWithPopup(auth, googleProvider);
-      // The auth state change will handle the redirect
+      const userCredential = await signInWithPopup(auth, googleProvider);
+      // Force immediate redirect after successful sign-up
+      if (userCredential.user) {
+        const redirectTo = searchParams.get('redirect') || '/dashboard';
+        // Force a page refresh to ensure all components update properly
+        window.location.href = redirectTo;
+      }
     } catch (error: any) {
       console.error("Google sign-up failed", error);
       
@@ -170,7 +180,7 @@ export default function SignupPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="w-full"
+                className="w-full h-11"
               />
             </div>
             <div className="space-y-2">
@@ -185,7 +195,7 @@ export default function SignupPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 minLength={6}
-                className="w-full"
+                className="w-full h-11"
               />
               <p className="text-xs text-gray-500">Must be at least 6 characters</p>
             </div>
@@ -201,12 +211,12 @@ export default function SignupPage() {
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
                 minLength={6}
-                className="w-full"
+                className="w-full h-11"
               />
             </div>
             <Button 
               type="submit" 
-              className="w-full" 
+              className="w-full h-11" 
               disabled={isSigningUp}
             >
               {isSigningUp ? 'Creating account...' : 'Create Account'}
@@ -226,7 +236,7 @@ export default function SignupPage() {
             <Button
               onClick={handleGoogleSignUp}
               disabled={isSigningUp}
-              className="w-full flex items-center justify-center gap-2 bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
+              className="w-full h-11 flex items-center justify-center gap-2 bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
               variant="outline"
               type="button"
             >

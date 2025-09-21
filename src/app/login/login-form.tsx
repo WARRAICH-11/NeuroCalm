@@ -43,7 +43,8 @@ export function LoginForm() {
       // Force immediate redirect after successful sign-in
       if (userCredential.user) {
         const redirectTo = searchParams.get('redirect') || '/dashboard';
-        router.replace(redirectTo);
+        // Force a page refresh to ensure all components update properly
+        window.location.href = redirectTo;
       }
     } catch (error: any) {
       console.error("Sign-in failed", error);
@@ -79,7 +80,8 @@ export function LoginForm() {
       // Force immediate redirect after successful sign-in
       if (userCredential.user) {
         const redirectTo = searchParams.get('redirect') || '/dashboard';
-        router.replace(redirectTo);
+        // Force a page refresh to ensure all components update properly
+        window.location.href = redirectTo;
       }
     } catch (error) {
       console.error("Google sign-in failed", error);
@@ -94,8 +96,8 @@ export function LoginForm() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-12 sm:px-6 lg:px-8">
-      <Card className="w-full max-w-md">
+    <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-8 sm:py-12 sm:px-6 lg:px-8">
+      <Card className="w-full max-w-md shadow-lg">
         <CardHeader className="space-y-1">
           <div className="flex justify-center">
             <NeuroCalmIcon className="h-12 w-12" />
@@ -111,7 +113,7 @@ export function LoginForm() {
           <Button
             onClick={handleGoogleLogin}
             variant="outline"
-            className="w-full"
+            className="w-full h-11"
             disabled={isSigningIn}
           >
             <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
@@ -155,6 +157,7 @@ export function LoginForm() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 disabled={isSigningIn}
+                className="h-11"
               />
             </div>
             <div className="space-y-2">
@@ -176,9 +179,10 @@ export function LoginForm() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 disabled={isSigningIn}
+                className="h-11"
               />
             </div>
-            <Button className="w-full" type="submit" disabled={isSigningIn}>
+            <Button className="w-full h-11" type="submit" disabled={isSigningIn}>
               {isSigningIn ? 'Signing in...' : 'Sign in'}
             </Button>
           </form>

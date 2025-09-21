@@ -44,14 +44,14 @@ export default function DailyCheckinCard({
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="space-y-6"
+            className="space-y-4 sm:space-y-6"
           >
             <FormField
               control={form.control}
               name="mood"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Mood (1-10): {field.value}</FormLabel>
+                  <FormLabel className="text-sm sm:text-base">Mood (1-10): {field.value}</FormLabel>
                   <FormControl>
                     <Slider
                       min={1}
@@ -59,6 +59,7 @@ export default function DailyCheckinCard({
                       step={1}
                       defaultValue={[field.value]}
                       onValueChange={(value) => field.onChange(value[0])}
+                      className="w-full"
                     />
                   </FormControl>
                   <FormMessage />
@@ -70,7 +71,7 @@ export default function DailyCheckinCard({
               name="sleep"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Sleep (hours): {field.value}</FormLabel>
+                  <FormLabel className="text-sm sm:text-base">Sleep (hours): {field.value}</FormLabel>
                   <FormControl>
                     <Slider
                       min={0}
@@ -78,6 +79,7 @@ export default function DailyCheckinCard({
                       step={0.5}
                       defaultValue={[field.value]}
                       onValueChange={(value) => field.onChange(value[0])}
+                      className="w-full"
                     />
                   </FormControl>
                   <FormMessage />
@@ -89,9 +91,13 @@ export default function DailyCheckinCard({
               name="diet"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Diet</FormLabel>
+                  <FormLabel className="text-sm sm:text-base">Diet</FormLabel>
                   <FormControl>
-                    <Textarea placeholder="e.g., Balanced meals, high-protein..." {...field} />
+                    <Textarea 
+                      placeholder="e.g., Balanced meals, high-protein..." 
+                      {...field} 
+                      className="min-h-[80px] sm:min-h-[100px]"
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -102,9 +108,13 @@ export default function DailyCheckinCard({
               name="exercise"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Exercise</FormLabel>
+                  <FormLabel className="text-sm sm:text-base">Exercise</FormLabel>
                   <FormControl>
-                    <Textarea placeholder="e.g., 30-min walk, gym session..." {...field} />
+                    <Textarea 
+                      placeholder="e.g., 30-min walk, gym session..." 
+                      {...field} 
+                      className="min-h-[80px] sm:min-h-[100px]"
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -115,9 +125,13 @@ export default function DailyCheckinCard({
               name="stressors"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Stressors</FormLabel>
+                  <FormLabel className="text-sm sm:text-base">Stressors</FormLabel>
                   <FormControl>
-                    <Textarea placeholder="e.g., Work deadlines, personal project..." {...field} />
+                    <Textarea 
+                      placeholder="e.g., Work deadlines, personal project..." 
+                      {...field} 
+                      className="min-h-[80px] sm:min-h-[100px]"
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

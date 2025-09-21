@@ -130,25 +130,42 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="grid gap-6 lg:grid-cols-2 xl:grid-cols-3">
-      <div className="xl:col-span-1 space-y-6">
-        <DailyCheckinCard
-          form={form}
-          onSubmit={handleCheckinSubmit}
-          isPending={isPending}
-        />
-      </div>
-      <div className="xl:col-span-2 space-y-6">
-        <ScoreCard scores={state.scores} history={state.scoreHistory} />
-        <div className="grid gap-6 md:grid-cols-2">
-           <RecommendationsCard title="Today's Recommendations" recommendations={state.recommendations.personalized} />
-           <RecommendationsCard title="Habit Tools" recommendations={state.recommendations.habitTools} />
+    <div className="space-y-6">
+      {/* Mobile-first layout: Stack everything vertically on mobile */}
+      <div className="grid gap-6 lg:grid-cols-2 xl:grid-cols-3">
+        {/* Daily Check-in Card - Full width on mobile, sidebar on desktop */}
+        <div className="xl:col-span-1 space-y-6">
+          <DailyCheckinCard
+            form={form}
+            onSubmit={handleCheckinSubmit}
+            isPending={isPending}
+          />
         </div>
-        <AiCoachCard
-          chatHistory={state.chatHistory}
-          onSubmit={handleChatSubmit}
-          isPending={isPending}
-        />
+        
+        {/* Main content area */}
+        <div className="xl:col-span-2 space-y-6">
+          {/* Score Card - Full width */}
+          <ScoreCard scores={state.scores} history={state.scoreHistory} />
+          
+          {/* Recommendations - Stack on mobile, side-by-side on tablet+ */}
+          <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2">
+            <RecommendationsCard 
+              title="Today's Recommendations" 
+              recommendations={state.recommendations.personalized} 
+            />
+            <RecommendationsCard 
+              title="Habit Tools" 
+              recommendations={state.recommendations.habitTools} 
+            />
+          </div>
+          
+          {/* AI Coach Card - Full width */}
+          <AiCoachCard
+            chatHistory={state.chatHistory}
+            onSubmit={handleChatSubmit}
+            isPending={isPending}
+          />
+        </div>
       </div>
     </div>
   );

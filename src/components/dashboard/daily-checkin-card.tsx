@@ -44,14 +44,14 @@ export default function DailyCheckinCard({
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="space-y-4 sm:space-y-6"
+            className="space-y-3 xs:space-y-4 sm:space-y-6"
           >
             <FormField
               control={form.control}
               name="mood"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-sm sm:text-base">Mood (1-10): {field.value}</FormLabel>
+                  <FormLabel className="text-xs xs:text-sm sm:text-base">Mood (1-10): {field.value}</FormLabel>
                   <FormControl>
                     <Slider
                       min={1}
@@ -71,7 +71,7 @@ export default function DailyCheckinCard({
               name="sleep"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-sm sm:text-base">Sleep (hours): {field.value}</FormLabel>
+                  <FormLabel className="text-xs xs:text-sm sm:text-base">Sleep (hours): {field.value}</FormLabel>
                   <FormControl>
                     <Slider
                       min={0}
@@ -91,12 +91,12 @@ export default function DailyCheckinCard({
               name="diet"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-sm sm:text-base">Diet</FormLabel>
+                  <FormLabel className="text-xs xs:text-sm sm:text-base">Diet</FormLabel>
                   <FormControl>
                     <Textarea 
                       placeholder="e.g., Balanced meals, high-protein..." 
                       {...field} 
-                      className="min-h-[80px] sm:min-h-[100px]"
+                      className="min-h-[70px] xs:min-h-[80px] sm:min-h-[100px] text-xs xs:text-sm"
                     />
                   </FormControl>
                   <FormMessage />
@@ -108,12 +108,12 @@ export default function DailyCheckinCard({
               name="exercise"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-sm sm:text-base">Exercise</FormLabel>
+                  <FormLabel className="text-xs xs:text-sm sm:text-base">Exercise</FormLabel>
                   <FormControl>
                     <Textarea 
                       placeholder="e.g., 30-min walk, gym session..." 
                       {...field} 
-                      className="min-h-[80px] sm:min-h-[100px]"
+                      className="min-h-[70px] xs:min-h-[80px] sm:min-h-[100px] text-xs xs:text-sm"
                     />
                   </FormControl>
                   <FormMessage />
@@ -125,21 +125,21 @@ export default function DailyCheckinCard({
               name="stressors"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-sm sm:text-base">Stressors</FormLabel>
+                  <FormLabel className="text-xs xs:text-sm sm:text-base">Stressors</FormLabel>
                   <FormControl>
                     <Textarea 
                       placeholder="e.g., Work deadlines, personal project..." 
                       {...field} 
-                      className="min-h-[80px] sm:min-h-[100px]"
+                      className="min-h-[70px] xs:min-h-[80px] sm:min-h-[100px] text-xs xs:text-sm"
                     />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-            <Button type="submit" className="w-full" disabled={isPending}>
-              {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Update & Analyze
+            <Button type="submit" className="w-full h-9 xs:h-10" disabled={isPending}>
+              {isPending && <Loader2 className="mr-2 h-3 w-3 xs:h-4 xs:w-4 animate-spin" />}
+              <span className="text-xs xs:text-sm">Update & Analyze</span>
             </Button>
           </form>
         </Form>

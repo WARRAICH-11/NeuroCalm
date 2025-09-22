@@ -96,16 +96,16 @@ export function LoginForm() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-8 sm:py-12 sm:px-6 lg:px-8">
+    <div className="flex min-h-screen items-center justify-center bg-gray-50 px-3 xs:px-4 py-6 xs:py-8 sm:py-12 sm:px-6 lg:px-8">
       <Card className="w-full max-w-md shadow-lg">
         <CardHeader className="space-y-1">
           <div className="flex justify-center">
-            <NeuroCalmIcon className="h-12 w-12" />
+            <NeuroCalmIcon className="h-10 w-10 xs:h-12 xs:w-12" />
           </div>
-          <CardTitle className="text-center text-2xl font-bold tracking-tight">
+          <CardTitle className="text-center text-xl xs:text-2xl font-bold tracking-tight">
             Sign in to your account
           </CardTitle>
-          <CardDescription className="text-center">
+          <CardDescription className="text-center text-sm xs:text-base">
             Enter your email and password to sign in
           </CardDescription>
         </CardHeader>
@@ -113,7 +113,7 @@ export function LoginForm() {
           <Button
             onClick={handleGoogleLogin}
             variant="outline"
-            className="w-full h-11"
+            className="w-full h-9 xs:h-11"
             disabled={isSigningIn}
           >
             <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
@@ -157,7 +157,7 @@ export function LoginForm() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 disabled={isSigningIn}
-                className="h-11"
+                className="h-9 xs:h-11 text-sm xs:text-base"
               />
             </div>
             <div className="space-y-2">
@@ -179,11 +179,11 @@ export function LoginForm() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 disabled={isSigningIn}
-                className="h-11"
+                className="h-9 xs:h-11 text-sm xs:text-base"
               />
             </div>
-            <Button className="w-full h-11" type="submit" disabled={isSigningIn}>
-              {isSigningIn ? 'Signing in...' : 'Sign in'}
+            <Button className="w-full h-9 xs:h-11" type="submit" disabled={isSigningIn}>
+              <span className="text-sm xs:text-base">{isSigningIn ? 'Signing in...' : 'Sign in'}</span>
             </Button>
           </form>
           <div className="text-center text-sm">

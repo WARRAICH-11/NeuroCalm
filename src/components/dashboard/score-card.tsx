@@ -44,25 +44,25 @@ export default function ScoreCard({ scores, history }: ScoreCardProps) {
           Here is a summary of your mental state based on your latest check-in.
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-6">
+      <CardContent className="space-y-4 xs:space-y-6">
         {/* Score Display - Responsive grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 text-center">
-          <div className="p-4 rounded-lg bg-muted/50">
-            <p className="text-3xl sm:text-4xl font-bold font-headline text-primary">
+        <div className="grid grid-cols-1 xs:grid-cols-2 gap-3 xs:gap-4 sm:gap-6 text-center">
+          <div className="p-3 xs:p-4 rounded-lg bg-muted/50">
+            <p className="text-2xl xs:text-3xl sm:text-4xl font-bold font-headline text-primary">
               {scores.calmIndex}
             </p>
-            <p className="text-sm text-muted-foreground mt-1">Calm Index</p>
+            <p className="text-xs xs:text-sm text-muted-foreground mt-1">Calm Index</p>
           </div>
-          <div className="p-4 rounded-lg bg-muted/50">
-            <p className="text-3xl sm:text-4xl font-bold font-headline text-accent">
+          <div className="p-3 xs:p-4 rounded-lg bg-muted/50">
+            <p className="text-2xl xs:text-3xl sm:text-4xl font-bold font-headline text-accent">
               {scores.productivityIndex}
             </p>
-            <p className="text-sm text-muted-foreground mt-1">Productivity Index</p>
+            <p className="text-xs xs:text-sm text-muted-foreground mt-1">Productivity Index</p>
           </div>
         </div>
         
         {/* Chart - Responsive height */}
-        <div className="h-[180px] sm:h-[200px] w-full">
+        <div className="h-[160px] xs:h-[180px] sm:h-[200px] w-full">
             <ChartContainer config={chartConfig} className="h-full w-full">
               <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={chartData} margin={{ top: 5, right: 10, left: -10, bottom: 5 }}>

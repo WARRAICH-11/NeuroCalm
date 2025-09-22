@@ -44,23 +44,23 @@ export default function RootLayout({
         <AuthWrapper>
           <div className="flex flex-col min-h-screen">
             <header className="border-b sticky top-0 z-40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-              <div className="container flex h-16 items-center justify-between py-4">
-                <div className="flex items-center space-x-4">
-                  <Link href="/" className="flex items-center space-x-2">
-                    <span className="font-bold text-xl">NeuroCalm</span>
+              <div className="container flex h-12 xs:h-14 sm:h-16 items-center justify-between py-2 xs:py-3 sm:py-4 px-3 xs:px-4 sm:px-6 lg:px-8">
+                <div className="flex items-center space-x-2 xs:space-x-4">
+                  <Link href="/" className="flex items-center space-x-1 xs:space-x-2">
+                    <span className="font-bold text-lg xs:text-xl">NeuroCalm</span>
                   </Link>
                 </div>
                 <MainNav />
               </div>
             </header>
             <main className="flex-1">
-              <div className="container py-4">
+              <div className="container py-2 xs:py-3 sm:py-4 px-3 xs:px-4 sm:px-6 lg:px-8">
                 {children}
               </div>
             </main>
-            <footer className="border-t py-6">
-              <div className="container flex flex-col items-center justify-between gap-4 md:h-24 md:flex-row">
-                <p className="text-center text-sm leading-loose text-muted-foreground md:text-left">
+            <footer className="border-t py-4 xs:py-6">
+              <div className="container flex flex-col items-center justify-between gap-2 xs:gap-4 md:h-24 md:flex-row px-3 xs:px-4 sm:px-6 lg:px-8">
+                <p className="text-center text-xs xs:text-sm leading-loose text-muted-foreground md:text-left">
                   &copy; {new Date().getFullYear()} NeuroCalm. All rights reserved.
                 </p>
               </div>

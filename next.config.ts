@@ -12,19 +12,19 @@ const nextConfig: NextConfig = {
     ignoreDuringBuilds: true,
   },
 
-  // Add headers for CORS and security
+  // Add headers for security (removed CORS policies that were causing issues)
   async headers() {
     return [
       {
         source: '/(.*)',
         headers: [
-            {
-              key: 'Cross-Origin-Opener-Policy',
-              value: 'unsafe-none',
-            },
           {
-            key: 'Cross-Origin-Embedder-Policy',
-            value: 'unsafe-none',
+            key: 'X-Frame-Options',
+            value: 'DENY',
+          },
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff',
           },
         ],
       },

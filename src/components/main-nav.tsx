@@ -13,27 +13,47 @@ export function MainNav() {
   const pathname = usePathname();
 
   const navItems = [
-    { name: 'Home', href: '/', icon: <Home className="h-4 w-4" /> },
-    { name: 'Dashboard', href: '/dashboard', icon: <BarChart2 className="h-4 w-4" /> },
-    { name: 'Support', href: '/support', icon: <HelpCircle className="h-4 w-4" /> },
+    { name: 'Home', href: '/', icon: <Home className="h-3 w-3 xs:h-4 xs:w-4" /> },
+    { name: 'Dashboard', href: '/dashboard', icon: <BarChart2 className="h-3 w-3 xs:h-4 xs:w-4" /> },
+    { name: 'Support', href: '/support', icon: <HelpCircle className="h-3 w-3 xs:h-4 xs:w-4" /> },
   ];
 
   if (loading) {
     return (
-      <nav className="flex items-center space-x-1">
-        {navItems.map((item) => (
-          <Button key={item.href} variant="ghost" size="sm" className="w-full justify-start" disabled>
-            {item.icon}
-            <span className="ml-2">{item.name}</span>
+      <div className="flex flex-col xs:flex-row xs:items-center gap-2 xs:gap-1">
+        <nav className="flex flex-col xs:flex-row gap-1">
+          {navItems.map((item) => (
+            <Button 
+              key={item.href} 
+              variant="ghost" 
+              size="sm" 
+              className="w-full xs:w-auto justify-start h-8 xs:h-9 sm:h-10 px-2 xs:px-3" 
+              disabled
+            >
+              <span className="flex items-center justify-center w-4 h-4 xs:w-5 xs:h-5">
+                {item.icon}
+              </span>
+              <span className="ml-1.5 xs:ml-2 text-xs xs:text-sm sm:text-base truncate">{item.name}</span>
+            </Button>
+          ))}
+        </nav>
+        <div className="flex flex-col xs:flex-row gap-1 xs:gap-2 xs:ml-auto">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="h-8 xs:h-9 sm:h-10 px-2 xs:px-3" 
+            disabled
+          >
+            <span className="text-xs xs:text-sm sm:text-base">Loading...</span>
           </Button>
-        ))}
-      </nav>
+        </div>
+      </div>
     );
   }
 
   return (
-    <div className="flex flex-col xs:flex-row xs:items-center xs:space-x-1 space-y-2 xs:space-y-0">
-      <nav className="flex flex-col xs:flex-row space-y-2 xs:space-y-0 xs:space-x-1">
+    <div className="flex flex-col xs:flex-row xs:items-center gap-2 xs:gap-1">
+      <nav className="flex flex-col xs:flex-row gap-1">
         {navItems.map((item) => {
           const isActive = pathname === item.href;
           
@@ -45,42 +65,62 @@ export function MainNav() {
               key={item.href}
               asChild
               variant={isActive ? 'secondary' : 'ghost'}
-              className="w-full xs:w-auto justify-start h-9 xs:h-10"
+              className="w-full xs:w-auto justify-start h-8 xs:h-9 sm:h-10 px-2 xs:px-3"
             >
-              <Link href={item.href}>
-                {item.icon}
-                <span className="ml-2 text-xs xs:text-sm sm:text-base">{item.name}</span>
+              <Link href={item.href} className="flex items-center">
+                <span className="flex items-center justify-center w-4 h-4 xs:w-5 xs:h-5">
+                  {item.icon}
+                </span>
+                <span className="ml-1.5 xs:ml-2 text-xs xs:text-sm sm:text-base truncate">{item.name}</span>
               </Link>
             </Button>
           );
         })}
       </nav>
 
-      <div className="flex flex-col space-y-2 xs:flex-row xs:space-y-0 xs:space-x-2 xs:ml-auto">
+      <div className="flex flex-col xs:flex-row gap-1 xs:gap-2 xs:ml-auto">
         {isAuthenticated ? (
           <>
-            <Button variant="outline" size="sm" asChild className="h-9 xs:h-10">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              asChild 
+              className="h-8 xs:h-9 sm:h-10 px-2 xs:px-3"
+            >
               <Link href="/profile" className="flex items-center">
-                <User className="h-3 w-3 xs:h-4 xs:w-4 mr-1 xs:mr-2" />
-                <span className="text-xs xs:text-sm sm:text-base">Profile</span>
+                <span className="flex items-center justify-center w-4 h-4 xs:w-5 xs:h-5">
+                  <User className="h-3 w-3 xs:h-4 xs:w-4" />
+                </span>
+                <span className="ml-1.5 xs:ml-2 text-xs xs:text-sm sm:text-base truncate">Profile</span>
               </Link>
             </Button>
             <Button 
               variant="outline" 
               size="sm" 
               onClick={signOut}
-              className="text-destructive hover:text-destructive h-9 xs:h-10"
+              className="h-8 xs:h-9 sm:h-10 px-2 xs:px-3 text-destructive hover:text-destructive flex items-center"
             >
-              <LogOut className="h-3 w-3 xs:h-4 xs:w-4 mr-1 xs:mr-2" />
-              <span className="text-xs xs:text-sm sm:text-base">Sign Out</span>
+              <span className="flex items-center justify-center w-4 h-4 xs:w-5 xs:h-5">
+                <LogOut className="h-3 w-3 xs:h-4 xs:w-4" />
+              </span>
+              <span className="ml-1.5 xs:ml-2 text-xs xs:text-sm sm:text-base truncate">Sign Out</span>
             </Button>
           </>
         ) : (
           <>
-            <Button variant="outline" size="sm" asChild className="h-9 xs:h-10">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              asChild 
+              className="h-8 xs:h-9 sm:h-10 px-2 xs:px-3"
+            >
               <Link href="/login" className="text-xs xs:text-sm sm:text-base">Log In</Link>
             </Button>
-            <Button size="sm" asChild className="h-9 xs:h-10">
+            <Button 
+              size="sm" 
+              asChild 
+              className="h-8 xs:h-9 sm:h-10 px-2 xs:px-3"
+            >
               <Link href="/signup" className="text-xs xs:text-sm sm:text-base">Sign Up</Link>
             </Button>
           </>

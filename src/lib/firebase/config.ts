@@ -2,6 +2,7 @@ import { initializeApp, getApps, getApp, FirebaseApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
+import { getPerformance } from 'firebase/performance';
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -27,8 +28,14 @@ const auth = getAuth(firebaseApp);
 const db = getFirestore(firebaseApp);
 const storage = getStorage(firebaseApp);
 
+// Initialize Performance Monitoring (only in production and browser)
+let perf;
+if (typeof window !== 'undefined' && process.env.NODE_ENV === 'production') {
+  perf = getPerformance(firebaseApp);
+}
+
 // Export the Firebase app and services
-export { firebaseApp as app, auth, db, storage };
+export { firebaseApp as app, auth, db, storage, perf };
 
 export default {
   app: firebaseApp,

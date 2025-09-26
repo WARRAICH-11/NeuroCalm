@@ -1,3 +1,7 @@
+#FILES
+ENV_SETUP_GUIDE.md
+IMPLEMENTATION_GUIDE.md
+
 # dependencies
 /node_modules
 /.pnp

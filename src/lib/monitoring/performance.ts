@@ -1,216 +1,172 @@
-interface PerformanceMetric {
-  name: string
-  value: number
-  unit: string
-  timestamp: number
-  context?: Record<string, any>
-}
+"use client";
 
-class PerformanceMonitor {
-  private metrics: PerformanceMetric[] = []
-  private isEnabled: boolean
+import { trace } from 'firebase/performance';
+import { perf } from '@/lib/firebase/config';
 
-  constructor() {
-    this.isEnabled = process.env.NODE_ENV === 'production'
-  }
+export class PerformanceMonitor {
+  private static traces: Map<string, any> = new Map();
 
-  public addMetric(metric: PerformanceMetric): void {
-    this.metrics.push(metric)
-    
-    // Keep only last 100 metrics to prevent memory leaks
-    if (this.metrics.length > 100) {
-      this.metrics = this.metrics.slice(-100)
-    }
-  }
-
-  measurePageLoad(): void {
-    if (typeof window === 'undefined' || !this.isEnabled) return
-
-    window.addEventListener('load', () => {
-      const navigation = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming
-      
-      if (navigation) {
-        this.addMetric({
-          name: 'page_load_time',
-          value: navigation.loadEventEnd - navigation.fetchStart,
-          unit: 'ms',
-          timestamp: Date.now(),
-        })
-
-        this.addMetric({
-          name: 'dom_content_loaded',
-          value: navigation.domContentLoadedEventEnd - navigation.fetchStart,
-          unit: 'ms',
-          timestamp: Date.now(),
-        })
-
-        this.addMetric({
-          name: 'first_byte',
-          value: navigation.responseStart - navigation.fetchStart,
-          unit: 'ms',
-          timestamp: Date.now(),
-        })
-      }
-    })
-  }
-
-  measureResourceTiming(): void {
-    if (typeof window === 'undefined' || !this.isEnabled) return
-
-    const observer = new PerformanceObserver((list) => {
-      for (const entry of list.getEntries()) {
-        if (entry.entryType === 'resource') {
-          const resource = entry as PerformanceResourceTiming
-          
-          this.addMetric({
-            name: 'resource_load_time',
-            value: resource.responseEnd - resource.requestStart,
-            unit: 'ms',
-            timestamp: Date.now(),
-            context: {
-              resourceName: resource.name,
-              resourceType: this.getResourceType(resource.name),
-            },
-          })
-        }
-      }
-    })
-
-    observer.observe({ entryTypes: ['resource'] })
-  }
-
-  private getResourceType(url: string): string {
-    if (url.includes('.js')) return 'javascript'
-    if (url.includes('.css')) return 'stylesheet'
-    if (url.includes('.png') || url.includes('.jpg') || url.includes('.jpeg') || url.includes('.gif')) return 'image'
-    if (url.includes('.woff') || url.includes('.woff2') || url.includes('.ttf')) return 'font'
-    return 'other'
-  }
-
-  measureCustomTiming(name: string, startTime?: number): () => void {
-    const start = startTime || performance.now()
-    
-    return () => {
-      const end = performance.now()
-      this.addMetric({
-        name: `custom_${name}`,
-        value: end - start,
-        unit: 'ms',
-        timestamp: Date.now(),
-      })
-    }
-  }
-
-  measureMemoryUsage(): void {
-    if (typeof window === 'undefined' || !this.isEnabled) return
-
-    // Check if memory API is available
-    if ('memory' in performance) {
-      const memory = (performance as any).memory
-      
-      this.addMetric({
-        name: 'memory_used',
-        value: memory.usedJSHeapSize,
-        unit: 'bytes',
-        timestamp: Date.now(),
-      })
-
-      this.addMetric({
-        name: 'memory_total',
-        value: memory.totalJSHeapSize,
-        unit: 'bytes',
-        timestamp: Date.now(),
-      })
-    }
-  }
-
-  measureNetworkSpeed(): void {
-    if (typeof window === 'undefined' || !this.isEnabled) return
-
-    // Check if connection API is available
-    if ('connection' in navigator) {
-      const connection = (navigator as any).connection
-      
-      this.addMetric({
-        name: 'connection_speed',
-        value: connection.downlink || 0,
-        unit: 'mbps',
-        timestamp: Date.now(),
-        context: {
-          effectiveType: connection.effectiveType,
-          rtt: connection.rtt,
-        },
-      })
-    }
-  }
-
-  getMetrics(): PerformanceMetric[] {
-    return [...this.metrics]
-  }
-
-  clearMetrics(): void {
-    this.metrics = []
-  }
-
-  // Send metrics to analytics service
-  async sendMetrics(): Promise<void> {
-    if (!this.isEnabled || this.metrics.length === 0) return
+  // Start a custom trace
+  static startTrace(traceName: string): void {
+    if (!perf || typeof window === 'undefined') return;
 
     try {
-      // Import analytics dynamically to avoid circular dependencies
-      const { analytics } = await import('./analytics')
-      
-      this.metrics.forEach(metric => {
-        analytics.trackPerformance({
-          metric: metric.name,
-          value: metric.value,
-          unit: metric.unit as 'ms' | 'bytes' | 'count',
-        })
-      })
-
-      // Clear metrics after sending
-      this.clearMetrics()
+      const customTrace = trace(perf, traceName);
+      customTrace.start();
+      this.traces.set(traceName, customTrace);
     } catch (error) {
-      console.error('Failed to send performance metrics:', error)
+      console.warn('Failed to start performance trace:', error);
     }
   }
 
-  // Initialize all monitoring
-  initialize(): void {
-    this.measurePageLoad()
-    this.measureResourceTiming()
-    this.measureMemoryUsage()
-    this.measureNetworkSpeed()
+  // Stop a custom trace
+  static stopTrace(traceName: string): void {
+    if (!perf || typeof window === 'undefined') return;
 
-    // Send metrics every 30 seconds
-    setInterval(() => {
-      this.sendMetrics()
-    }, 30000)
+    try {
+      const customTrace = this.traces.get(traceName);
+      if (customTrace) {
+        customTrace.stop();
+        this.traces.delete(traceName);
+      }
+    } catch (error) {
+      console.warn('Failed to stop performance trace:', error);
+    }
+  }
+
+  // Add custom attributes to a trace
+  static addTraceAttribute(traceName: string, attribute: string, value: string): void {
+    if (!perf || typeof window === 'undefined') return;
+
+    try {
+      const customTrace = this.traces.get(traceName);
+      if (customTrace) {
+        customTrace.putAttribute(attribute, value);
+      }
+    } catch (error) {
+      console.warn('Failed to add trace attribute:', error);
+    }
+  }
+
+  // Measure function execution time
+  static async measureAsync<T>(
+    traceName: string, 
+    fn: () => Promise<T>,
+    attributes?: Record<string, string>
+  ): Promise<T> {
+    this.startTrace(traceName);
+    
+    if (attributes) {
+      Object.entries(attributes).forEach(([key, value]) => {
+        this.addTraceAttribute(traceName, key, value);
+      });
+    }
+
+    try {
+      const result = await fn();
+      this.addTraceAttribute(traceName, 'status', 'success');
+      return result;
+    } catch (error) {
+      this.addTraceAttribute(traceName, 'status', 'error');
+      this.addTraceAttribute(traceName, 'error', String(error));
+      throw error;
+    } finally {
+      this.stopTrace(traceName);
+    }
+  }
+
+  // Measure synchronous function execution time
+  static measure<T>(
+    traceName: string, 
+    fn: () => T,
+    attributes?: Record<string, string>
+  ): T {
+    this.startTrace(traceName);
+    
+    if (attributes) {
+      Object.entries(attributes).forEach(([key, value]) => {
+        this.addTraceAttribute(traceName, key, value);
+      });
+    }
+
+    try {
+      const result = fn();
+      this.addTraceAttribute(traceName, 'status', 'success');
+      return result;
+    } catch (error) {
+      this.addTraceAttribute(traceName, 'status', 'error');
+      this.addTraceAttribute(traceName, 'error', String(error));
+      throw error;
+    } finally {
+      this.stopTrace(traceName);
+    }
+  }
+
+  // Monitor page load performance
+  static monitorPageLoad(pageName: string): void {
+    if (typeof window === 'undefined') return;
+
+    // Monitor navigation timing
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        const navigation = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming;
+        
+        this.startTrace(`page_load_${pageName}`);
+        this.addTraceAttribute(`page_load_${pageName}`, 'page', pageName);
+        this.addTraceAttribute(`page_load_${pageName}`, 'load_time', String(navigation.loadEventEnd - navigation.navigationStart));
+        this.addTraceAttribute(`page_load_${pageName}`, 'dom_content_loaded', String(navigation.domContentLoadedEventEnd - navigation.navigationStart));
+        this.stopTrace(`page_load_${pageName}`);
+      }, 0);
+    });
+  }
+
+  // Monitor component render performance
+  static monitorComponentRender(componentName: string, renderCount: number): void {
+    const traceName = `component_render_${componentName}`;
+    this.startTrace(traceName);
+    this.addTraceAttribute(traceName, 'component', componentName);
+    this.addTraceAttribute(traceName, 'render_count', String(renderCount));
+    
+    // Stop trace after a short delay to capture render time
+    setTimeout(() => {
+      this.stopTrace(traceName);
+    }, 0);
+  }
+
+  // Monitor AI request performance
+  static async monitorAIRequest<T>(
+    requestType: string,
+    request: () => Promise<T>
+  ): Promise<T> {
+    return this.measureAsync(
+      `ai_request_${requestType}`,
+      request,
+      { request_type: requestType }
+    );
+  }
+
+  // Monitor Firestore operations
+  static async monitorFirestoreOperation<T>(
+    operation: string,
+    request: () => Promise<T>
+  ): Promise<T> {
+    return this.measureAsync(
+      `firestore_${operation}`,
+      request,
+      { operation }
+    );
   }
 }
 
-// Singleton instance
-export const performanceMonitor = new PerformanceMonitor()
+// Hook for monitoring component performance
+export function usePerformanceMonitoring(componentName: string) {
+  const startRender = () => {
+    PerformanceMonitor.startTrace(`${componentName}_render`);
+  };
 
-// React hook for performance monitoring
-export function usePerformanceMonitor() {
-  const measureTiming = (name: string) => {
-    return performanceMonitor.measureCustomTiming(name)
-  }
+  const endRender = () => {
+    PerformanceMonitor.stopTrace(`${componentName}_render`);
+  };
 
-  const addMetric = (name: string, value: number, unit: string, context?: Record<string, any>) => {
-    performanceMonitor.addMetric({
-      name,
-      value,
-      unit,
-      timestamp: Date.now(),
-      context,
-    })
-  }
-
-  return {
-    measureTiming,
-    addMetric,
-    getMetrics: () => performanceMonitor.getMetrics(),
-  }
+  return { startRender, endRender };
 }

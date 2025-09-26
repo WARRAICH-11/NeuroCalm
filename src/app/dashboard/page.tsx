@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -9,6 +9,10 @@ import { format } from "date-fns";
 import type { DailyState, CheckInData } from "@/lib/types";
 import { submitDailyCheckin, submitChatMessage } from "../actions";
 import { useToast } from "../../components/ui/use-toast";
+import { useFirestoreData } from "@/hooks/use-firestore-data";
+import { PerformanceMonitor } from "@/lib/monitoring/performance";
+import { EnhancedErrorHandler } from "@/lib/error-handling/enhanced-error-handler";
+import { Skeleton } from "@/components/ui/skeleton";
 
 import DailyCheckinCard from "../../components/dashboard/daily-checkin-card";
 import ScoreCard from "../../components/dashboard/score-card";
@@ -45,89 +49,153 @@ const checkInSchema = z.object({
 });
 
 export default function DashboardPage() {
-  const [state, setState] = useState<DailyState>(defaultState);
+  const { loading, dailyState, saveDailyCheckIn, updateChatHistory } = useFirestoreData();
   const [isPending, startTransition] = useTransition();
   const { toast } = useToast();
 
+  // Monitor page load performance
+  useEffect(() => {
+    PerformanceMonitor.monitorPageLoad('dashboard');
+  }, []);
+
   const form = useForm<z.infer<typeof checkInSchema>>({
     resolver: zodResolver(checkInSchema),
-    defaultValues: state.checkIn,
+    defaultValues: dailyState?.checkIn,
   });
 
+  // Update form when dailyState changes
+  useEffect(() => {
+    if (dailyState?.checkIn) {
+      form.reset(dailyState.checkIn);
+    }
+  }, [dailyState?.checkIn, form]);
+
   const handleCheckinSubmit = (values: z.infer<typeof checkInSchema>) => {
+    if (!dailyState) return;
+
     startTransition(async () => {
-      const formData = new FormData();
-      Object.entries(values).forEach(([key, value]) => {
-        formData.append(key, String(value));
-      });
-      formData.append("userGoals", state.userGoals);
+      try {
+        const result = await PerformanceMonitor.measureAsync(
+          'daily_checkin_submit',
+          async () => {
+            const formData = new FormData();
+            Object.entries(values).forEach(([key, value]) => {
+              formData.append(key, String(value));
+            });
+            formData.append("userGoals", dailyState.userGoals);
 
-      const result = await submitDailyCheckin(state, formData);
+            return await submitDailyCheckin(dailyState, formData);
+          },
+          { user_action: 'daily_checkin' }
+        );
 
-      if (result.status === "success" && result.data) {
-        setState((prevState) => ({
-          ...prevState,
-          checkIn: {
-            ...values,
-            userGoals: state.userGoals
-          },
-          scores: result.data!.scores,
-          recommendations: {
-            personalized: result.data!.personalizedRecommendations,
-            habitTools: result.data!.habitTools,
-          },
-          scoreHistory: [
-            ...prevState.scoreHistory,
-            { ...result.data!.scores, date: format(new Date(), "MMM d") },
-          ].slice(-7), // Keep last 7 days
-        }));
-        toast({ title: "Check-in complete!", description: "Your scores and recommendations have been updated." });
-      } else {
+        if (result.status === "success" && result.data) {
+          // Save to Firestore
+          await saveDailyCheckIn(
+            { ...values, userGoals: dailyState.userGoals },
+            result.data.scores,
+            {
+              personalized: result.data.personalizedRecommendations,
+              habitTools: result.data.habitTools,
+            }
+          );
+        } else {
+          const errorInfo = await EnhancedErrorHandler.handleError(
+            new Error(result.error || "Check-in failed"),
+            { action: 'daily_checkin', values }
+          );
+          
+          toast({
+            variant: "destructive",
+            title: "Check-in failed",
+            description: errorInfo.userMessage,
+          });
+        }
+      } catch (error) {
+        const errorInfo = await EnhancedErrorHandler.handleError(
+          error as Error,
+          { action: 'daily_checkin', values }
+        );
+        
         toast({
           variant: "destructive",
           title: "Check-in failed",
-          description: result.error || "An unknown error occurred.",
+          description: errorInfo.userMessage,
         });
       }
     });
   };
 
   const handleChatSubmit = (question: string) => {
-    startTransition(async () => {
-      setState((prevState) => ({
-        ...prevState,
-        chatHistory: [
-          ...prevState.chatHistory,
-          { role: "user", content: question },
-        ],
-      }));
-      
-      const formData = new FormData();
-      formData.append("question", question);
-      formData.append("checkInData", JSON.stringify(state.checkIn));
-      formData.append("scores", JSON.stringify(state.scores));
+    if (!dailyState) return;
 
-      const result = await submitChatMessage(formData);
-      
-      if (result.status === "success" && result.answer) {
-        setState((prevState) => ({
-          ...prevState,
-          chatHistory: [
-            ...prevState.chatHistory,
-            { role: "assistant", content: result.answer! },
-          ],
-        }));
-      } else {
-         setState((prevState) => ({
-          ...prevState,
-          chatHistory: [
-            ...prevState.chatHistory,
-            { role: "assistant", content: result.error || "Sorry, something went wrong." },
-          ],
-        }));
+    startTransition(async () => {
+      try {
+        // Add user message to chat history
+        const newUserMessage = { role: "user" as const, content: question };
+        const updatedHistory = [...dailyState.chatHistory, newUserMessage];
+        updateChatHistory(updatedHistory);
+
+        const result = await PerformanceMonitor.measureAsync(
+          'ai_chat_submit',
+          async () => {
+            const formData = new FormData();
+            formData.append("question", question);
+            formData.append("checkInData", JSON.stringify(dailyState.checkIn));
+            formData.append("scores", JSON.stringify(dailyState.scores));
+
+            return await submitChatMessage(formData);
+          },
+          { user_action: 'ai_chat', question_length: question.length.toString() }
+        );
+
+        // Add AI response to chat history
+        const aiResponse = result.status === "success" && result.answer 
+          ? result.answer 
+          : result.error || "Sorry, something went wrong.";
+        
+        const newAiMessage = { role: "assistant" as const, content: aiResponse };
+        updateChatHistory([...updatedHistory, newAiMessage]);
+
+        if (result.status === "error") {
+          await EnhancedErrorHandler.handleError(
+            new Error(result.error || "AI chat failed"),
+            { action: 'ai_chat', question }
+          );
+        }
+      } catch (error) {
+        const errorInfo = await EnhancedErrorHandler.handleError(
+          error as Error,
+          { action: 'ai_chat', question }
+        );
+        
+        // Add error message to chat
+        const errorMessage = { role: "assistant" as const, content: errorInfo.userMessage };
+        updateChatHistory([...dailyState.chatHistory, { role: "user", content: question }, errorMessage]);
       }
     });
   };
+
+  // Show loading skeleton while data loads
+  if (loading || !dailyState) {
+    return (
+      <div className="space-y-6">
+        <div className="grid gap-6 lg:grid-cols-2 xl:grid-cols-3">
+          <div className="xl:col-span-1 space-y-6">
+            <Skeleton className="h-[400px] w-full" />
+          </div>
+          <div className="xl:col-span-2 space-y-6">
+            <Skeleton className="h-[300px] w-full" />
+            <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2">
+              <Skeleton className="h-[200px] w-full" />
+              <Skeleton className="h-[200px] w-full" />
+            </div>
+            <Skeleton className="h-[400px] w-full" />
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -145,23 +213,23 @@ export default function DashboardPage() {
         {/* Main content area */}
         <div className="xl:col-span-2 space-y-6">
           {/* Score Card - Full width */}
-          <ScoreCard scores={state.scores} history={state.scoreHistory} />
+          <ScoreCard scores={dailyState.scores} history={dailyState.scoreHistory} />
           
           {/* Recommendations - Stack on mobile, side-by-side on tablet+ */}
           <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2">
             <RecommendationsCard 
               title="Today's Recommendations" 
-              recommendations={state.recommendations.personalized} 
+              recommendations={dailyState.recommendations.personalized} 
             />
             <RecommendationsCard 
               title="Habit Tools" 
-              recommendations={state.recommendations.habitTools} 
+              recommendations={dailyState.recommendations.habitTools} 
             />
           </div>
           
           {/* AI Coach Card - Full width */}
           <AiCoachCard
-            chatHistory={state.chatHistory}
+            chatHistory={dailyState.chatHistory}
             onSubmit={handleChatSubmit}
             isPending={isPending}
           />

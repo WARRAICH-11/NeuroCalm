@@ -65,8 +65,8 @@ export function ActivityHistory({ userId }: { userId: string }) {
         const checkInsRef = collection(db, 'dailyCheckIns');
         const q = query(
           checkInsRef,
-          where('userId', '==', userId),
-          orderBy('createdAt', 'desc'),
+          where('uid', '==', userId),
+          orderBy('date', 'desc'),
           limit(30)
         );
         
@@ -77,18 +77,18 @@ export function ActivityHistory({ userId }: { userId: string }) {
           const data = doc.data();
           const checkIn: CheckIn = {
             id: doc.id,
-            userId: data.userId || '',
-            mood: Number(data.mood) || 3, // Default to neutral
-            energy: ['very_low', 'low', 'medium', 'high', 'very_high'].includes(data.energy) 
-              ? data.energy as CheckIn['energy'] 
+            userId: data.uid || '',
+            mood: Number(data.checkIn?.mood) || 3, // Default to neutral
+            energy: ['very_low', 'low', 'medium', 'high', 'very_high'].includes(data.checkIn?.energy) 
+              ? data.checkIn.energy as CheckIn['energy'] 
               : 'medium',
-            sleepQuality: Number(data.sleepQuality) || 3,
-            stressLevel: Number(data.stressLevel) || 3,
-            notes: data.notes,
-            completedTasks: Number(data.completedTasks) || 0,
-            totalTasks: Number(data.totalTasks) || 0,
-            date: data.createdAt?.toDate() || new Date(),
-            createdAt: data.createdAt?.toDate() || new Date()
+            sleepQuality: Number(data.checkIn?.sleep) || 3,
+            stressLevel: Number(data.checkIn?.stressors) || 3,
+            notes: data.checkIn?.notes,
+            completedTasks: Number(data.checkIn?.completedTasks) || 0,
+            totalTasks: Number(data.checkIn?.totalTasks) || 0,
+            date: data.createdAt?.toDate() || new Date(data.date) || new Date(),
+            createdAt: data.createdAt?.toDate() || new Date(data.date) || new Date()
           };
           checkInData.push(checkIn);
         });

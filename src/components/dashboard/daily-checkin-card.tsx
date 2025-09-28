@@ -33,18 +33,18 @@ export default function DailyCheckinCard({
   isPending,
 }: DailyCheckinCardProps) {
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Daily Check-in</CardTitle>
-        <CardDescription>
+    <Card className="compact-mobile-card">
+      <CardHeader className="pb-3 xxs:pb-4 xs:pb-6">
+        <CardTitle className="text-base xxs:text-lg xs:text-xl">Daily Check-in</CardTitle>
+        <CardDescription className="text-xs xxs:text-sm">
           Log your daily metrics to get personalized insights.
         </CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="pt-0">
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="space-y-3 xs:space-y-4 sm:space-y-6"
+            className="space-y-2 xxs:space-y-3 xs:space-y-4 sm:space-y-6"
           >
             <FormField
               control={form.control}
@@ -137,9 +137,9 @@ export default function DailyCheckinCard({
                 </FormItem>
               )}
             />
-            <Button type="submit" className="w-full h-9 xs:h-10" disabled={isPending}>
-              {isPending && <Loader2 className="mr-2 h-3 w-3 xs:h-4 xs:w-4 animate-spin" />}
-              <span className="text-xs xs:text-sm">Update & Analyze</span>
+            <Button type="submit" className="w-full h-8 xxs:h-9 xs:h-10 compact-mobile-button" disabled={isPending}>
+              {isPending && <Loader2 className="mr-1 xxs:mr-2 h-3 w-3 xs:h-4 xs:w-4 animate-spin" />}
+              <span className="text-xs xxs:text-sm">Update & Analyze</span>
             </Button>
           </form>
         </Form>

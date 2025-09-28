@@ -8,20 +8,20 @@ import Image from "next/image";
 export default function Home() {
   return (
     <div className="flex flex-col min-h-dvh bg-background dark:bg-[#0B0C10] text-foreground">
-      <header className="container mx-auto px-3 xs:px-4 sm:px-6 lg:px-8 py-2 xs:py-3 sm:py-4 flex justify-between items-center sticky top-0 z-50 bg-background/80 dark:bg-[#0B0C10]/80 backdrop-blur-sm">
-        <div className="flex items-center gap-1 xs:gap-2">
-          <NeuroCalmIcon className="w-6 h-6 xs:w-7 xs:h-7 sm:w-8 sm:h-8 text-primary" />
-          <h1 className="text-lg xs:text-xl sm:text-2xl font-bold font-headline text-foreground">NeuroCalm</h1>
+      <header className="container mx-auto px-2 xxs:px-3 xs:px-4 sm:px-6 lg:px-8 py-1 xxs:py-2 xs:py-3 sm:py-4 flex justify-between items-center sticky top-0 z-50 bg-background/80 dark:bg-[#0B0C10]/80 backdrop-blur-sm">
+        <div className="flex items-center gap-1 xxs:gap-1 xs:gap-2">
+          <NeuroCalmIcon className="w-5 h-5 xxs:w-6 xxs:h-6 xs:w-7 xs:h-7 sm:w-8 sm:h-8 text-primary" />
+          <h1 className="text-base xxs:text-lg xs:text-xl sm:text-2xl font-bold font-headline text-foreground">NeuroCalm</h1>
         </div>
-        <div className="flex items-center gap-1 xs:gap-2 sm:gap-4">
-          <Button variant="ghost" size="sm" asChild className="hidden xs:flex h-7 xs:h-8 sm:h-9">
+        <div className="flex items-center gap-0.5 xxs:gap-1 xs:gap-2 sm:gap-4">
+          <Button variant="ghost" size="sm" asChild className="hidden xs:flex h-6 xxs:h-7 xs:h-8 sm:h-9">
             <Link href="#features" className="text-xs xs:text-sm">Features</Link>
           </Button>
-          <Button variant="ghost" size="sm" asChild className="hidden sm:flex h-7 xs:h-8 sm:h-9">
+          <Button variant="ghost" size="sm" asChild className="hidden sm:flex h-6 xxs:h-7 xs:h-8 sm:h-9">
             <Link href="#how-it-works" className="text-xs xs:text-sm">How It Works</Link>
           </Button>
-          <Button size="sm" asChild className="h-7 xs:h-8 sm:h-9">
-            <Link href="/dashboard" className="text-xs xs:text-sm sm:text-base">
+          <Button size="sm" asChild className="h-6 xxs:h-7 xs:h-8 sm:h-9 compact-mobile-button">
+            <Link href="/dashboard" className="text-xs xxs:text-xs xs:text-sm sm:text-base">
               <span className="hidden xs:inline">Access Dashboard</span>
               <span className="xs:hidden">Dashboard</span>
             </Link>
@@ -31,19 +31,22 @@ export default function Home() {
 
       <main className="flex-grow">
         {/* Hero Section */}
-        <section className="relative py-12 xs:py-16 sm:py-20 md:py-32 lg:py-40 overflow-hidden">
+        <section className="relative py-8 xxs:py-12 xs:py-16 sm:py-20 md:py-32 lg:py-40 overflow-hidden">
           <div className="absolute inset-0 bg-grid-pattern opacity-5 dark:opacity-[0.03]"></div>
           <div className="absolute inset-0 bg-gradient-to-b from-background via-transparent to-background"></div>
-          <div className="container mx-auto px-3 xs:px-4 sm:px-6 lg:px-8 text-center relative">
-            <h1 className="text-2xl xs:text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-bold font-headline text-transparent bg-clip-text bg-gradient-to-r from-primary via-accent to-primary tracking-tighter">
+          <div className="container mx-auto px-2 xxs:px-3 xs:px-4 sm:px-6 lg:px-8 text-center relative">
+            <h1 className="text-xl xxs:text-2xl xs:text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-bold font-headline text-transparent bg-clip-text bg-gradient-to-r from-primary via-accent to-primary tracking-tighter">
               Unlock Your Brain's Potential
             </h1>
-            <p className="mt-4 xs:mt-6 max-w-3xl mx-auto text-sm xs:text-base sm:text-lg md:text-xl text-muted-foreground">
+            <p className="mt-3 xxs:mt-4 xs:mt-6 max-w-3xl mx-auto text-xs xxs:text-sm xs:text-base sm:text-lg md:text-xl text-muted-foreground">
               Leverage the power of AI and neuroscience to reduce stress, enhance focus, and build life-changing habits. Your journey to a calmer, more productive mind starts now.
             </p>
-            <div className="mt-6 xs:mt-8 sm:mt-10">
-              <Button size="sm" className="xs:hidden font-bold shadow-lg shadow-primary/30 hover:scale-105 transition-transform duration-300" asChild>
+            <div className="mt-4 xxs:mt-6 xs:mt-8 sm:mt-10">
+              <Button size="sm" className="xxs:hidden font-bold shadow-lg shadow-primary/30 hover:scale-105 transition-transform duration-300 compact-mobile-button" asChild>
                 <Link href="/dashboard">Begin</Link>
+              </Button>
+              <Button size="sm" className="hidden xxs:flex xs:hidden font-bold shadow-lg shadow-primary/30 hover:scale-105 transition-transform duration-300 compact-mobile-button" asChild>
+                <Link href="/dashboard">Start Journey</Link>
               </Button>
               <Button size="lg" className="hidden xs:flex font-bold shadow-lg shadow-primary/30 hover:scale-105 transition-transform duration-300" asChild>
                 <Link href="/dashboard">Begin Your Transformation</Link>

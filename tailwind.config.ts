@@ -16,12 +16,13 @@ export default {
       },
     },
     screens: {
-      'xs': '360px',
-      'sm': '640px',
-      'md': '768px',
-      'lg': '1024px',
-      'xl': '1280px',
-      '2xl': '1536px',
+      'xxs': '320px',   // Very small phones
+      'xs': '360px',    // Compact phones (your target device)
+      'sm': '640px',    // Large phones / small tablets
+      'md': '768px',    // Tablets
+      'lg': '1024px',   // Small laptops
+      'xl': '1280px',   // Desktops
+      '2xl': '1536px',  // Large desktops
     },
     extend: {
       fontFamily: {

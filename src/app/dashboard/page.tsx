@@ -198,11 +198,11 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Mobile-first layout: Stack everything vertically on mobile */}
-      <div className="grid gap-6 lg:grid-cols-2 xl:grid-cols-3">
+    <div className="space-y-3 xxs:space-y-4 xs:space-y-6">
+      {/* Compact Mobile-first layout: Stack everything vertically */}
+      <div className="grid gap-3 xxs:gap-4 xs:gap-6 lg:grid-cols-2 xl:grid-cols-3">
         {/* Daily Check-in Card - Full width on mobile, sidebar on desktop */}
-        <div className="xl:col-span-1 space-y-6">
+        <div className="xl:col-span-1 space-y-3 xxs:space-y-4 xs:space-y-6">
           <DailyCheckinCard
             form={form}
             onSubmit={handleCheckinSubmit}
@@ -211,12 +211,12 @@ export default function DashboardPage() {
         </div>
         
         {/* Main content area */}
-        <div className="xl:col-span-2 space-y-6">
+        <div className="xl:col-span-2 space-y-3 xxs:space-y-4 xs:space-y-6">
           {/* Score Card - Full width */}
           <ScoreCard scores={dailyState.scores} history={dailyState.scoreHistory} />
           
-          {/* Recommendations - Stack on mobile, side-by-side on tablet+ */}
-          <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2">
+          {/* Recommendations - Stack on compact mobile, side-by-side on larger screens */}
+          <div className="grid gap-3 xxs:gap-4 xs:gap-6 xs:grid-cols-1 md:grid-cols-2">
             <RecommendationsCard 
               title="Today's Recommendations" 
               recommendations={dailyState.recommendations.personalized} 

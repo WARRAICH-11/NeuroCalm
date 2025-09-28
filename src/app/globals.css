@@ -70,9 +70,43 @@
 }
 
 @layer utilities {
-  /* Mobile-first responsive utilities */
+  /* Compact Mobile-first responsive utilities */
   .touch-manipulation {
     touch-action: manipulation;
+  }
+  
+  /* Compact mobile specific utilities */
+  .compact-mobile-padding {
+    padding: 0.5rem 0.75rem;
+  }
+  
+  .compact-mobile-margin {
+    margin: 0.25rem 0.5rem;
+  }
+  
+  .compact-mobile-text {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+  }
+  
+  .compact-mobile-header {
+    height: 3rem; /* 48px - optimal for compact screens */
+  }
+  
+  .compact-mobile-button {
+    min-height: 2.75rem; /* 44px - Apple's minimum touch target */
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+  }
+  
+  .compact-mobile-card {
+    padding: 0.75rem;
+    margin: 0.5rem;
+    border-radius: 0.5rem;
+  }
+  
+  .compact-mobile-grid {
+    gap: 0.5rem;
   }
   
   .tap-highlight-transparent {

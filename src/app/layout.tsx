@@ -44,17 +44,17 @@ export default function RootLayout({
         <AuthWrapper>
           <div className="flex flex-col min-h-screen">
             <header className="border-b sticky top-0 z-40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-              <div className="container flex h-12 xs:h-14 sm:h-16 items-center justify-between py-2 xs:py-3 sm:py-4 px-3 xs:px-4 sm:px-6 lg:px-8">
-                <div className="flex items-center space-x-2 xs:space-x-4">
-                  <Link href="/" className="flex items-center space-x-1 xs:space-x-2">
-                    <span className="font-bold text-lg xs:text-xl">NeuroCalm</span>
+              <div className="container flex h-12 xxs:h-12 xs:h-14 sm:h-16 items-center justify-between py-1 xxs:py-2 xs:py-3 sm:py-4 px-2 xxs:px-3 xs:px-4 sm:px-6 lg:px-8">
+                <div className="flex items-center space-x-1 xxs:space-x-2 xs:space-x-4">
+                  <Link href="/" className="flex items-center space-x-1 xxs:space-x-1 xs:space-x-2">
+                    <span className="font-bold text-base xxs:text-lg xs:text-xl">NeuroCalm</span>
                   </Link>
                 </div>
                 <MainNav />
               </div>
             </header>
             <main className="flex-1">
-              <div className="container py-2 xs:py-3 sm:py-4 px-3 xs:px-4 sm:px-6 lg:px-8">
+              <div className="container py-1 xxs:py-2 xs:py-3 sm:py-4 px-2 xxs:px-3 xs:px-4 sm:px-6 lg:px-8">
                 {children}
               </div>
             </main>

@@ -143,17 +143,17 @@ export function MainNav() {
             {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </Button>
           
-          <div className="flex gap-1.5 xs:gap-2">
+          <div className="flex gap-1 xxs:gap-1.5 xs:gap-2">
             {isAuthenticated ? (
               <Button 
                 variant="outline" 
                 size="sm" 
                 onClick={signOut}
-                className="h-9 xs:h-10 px-2 xs:px-3 text-destructive hover:text-destructive touch-manipulation"
+                className="h-8 xxs:h-9 xs:h-10 px-1.5 xxs:px-2 xs:px-3 text-destructive hover:text-destructive touch-manipulation compact-mobile-button"
                 aria-label="Sign out"
               >
-                <LogOut className="h-4 w-4" />
-                <span className="hidden xs:inline ml-2">Sign Out</span>
+                <LogOut className="h-3.5 w-3.5 xxs:h-4 xxs:w-4" />
+                <span className="hidden xs:inline ml-1 xxs:ml-2">Sign Out</span>
               </Button>
             ) : (
               <>
@@ -161,20 +161,22 @@ export function MainNav() {
                   variant="outline" 
                   size="sm" 
                   asChild 
-                  className="h-9 xs:h-10 px-2 xs:px-3 text-xs xs:text-sm touch-manipulation"
+                  className="h-8 xxs:h-9 xs:h-10 px-1.5 xxs:px-2 xs:px-3 text-xs xs:text-sm touch-manipulation compact-mobile-button"
                 >
                   <Link href="/login">
-                    <span className="xs:hidden">In</span>
+                    <span className="xxs:hidden">In</span>
+                    <span className="hidden xxs:inline xs:hidden">Log</span>
                     <span className="hidden xs:inline">Log In</span>
                   </Link>
                 </Button>
                 <Button 
                   size="sm" 
                   asChild 
-                  className="h-9 xs:h-10 px-2 xs:px-3 text-xs xs:text-sm touch-manipulation"
+                  className="h-8 xxs:h-9 xs:h-10 px-1.5 xxs:px-2 xs:px-3 text-xs xs:text-sm touch-manipulation compact-mobile-button"
                 >
                   <Link href="/signup">
-                    <span className="xs:hidden">Up</span>
+                    <span className="xxs:hidden">Up</span>
+                    <span className="hidden xxs:inline xs:hidden">Join</span>
                     <span className="hidden xs:inline">Sign Up</span>
                   </Link>
                 </Button>
